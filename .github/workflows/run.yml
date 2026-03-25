@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -31,16 +33,31 @@ jobs:
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
           echo "ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}" >> .env
           echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
-          echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
-      
+
       - name: Start ngrok tunnel
         run: |
           npm install -g ngrok
-          ngrok config add-authtoken $(grep NGROK_AUTHTOKEN .env | cut -d '=' -f2)
+          ngrok config add-authtoken $NGROK_AUTHTOKEN
           ngrok http 3000 --basic-auth="" > ngrok.log &
           sleep 5
           curl http://localhost:4040/api/tunnels > tunnels.json
           cat tunnels.json
+
+      - name: Update ngrok_url.txt on ngrok-link-store repo
+        run: |
+          NGROK_URL=$(cat tunnels.json | grep -o 'https://[a-zA-Z0-9\.\-]*ngrok[^"]*')
+          echo "$NGROK_URL/admin" > ngrok_url.txt
+
+          git config --global user.email "hientv.k64cntt-b@utb.edu.vn"
+          git config --global user.name "hientvk64cntt-b-code"
+
+          git clone https://${{ secrets.NGROK_STORE_TOKEN }}@github.com/hientvk64cntt-b-code/ngrok-link-store.git
+          cd ngrok-link-store
+          mv ../ngrok_url.txt .
+          git add ngrok_url.txt
+          git commit -m "update ngrok url"
+          git push
+
       - name: Run chatbot server
         run: |
           node index.js &
