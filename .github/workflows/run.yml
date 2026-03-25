@@ -30,7 +30,7 @@ jobs:
       - name: Start ngrok tunnel
         run: |
           npm install -g ngrok
-          ngrok authtoken $NGROK_AUTHTOKEN
+          ngrok config add-authtoken $NGROK_AUTHTOKEN
           ngrok http 3000 > ngrok.log &
           sleep 5
           curl http://localhost:4040/api/tunnels > tunnels.json
