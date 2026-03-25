@@ -43,19 +43,7 @@ jobs:
           curl http://localhost:4040/api/tunnels > tunnels.json
           cat tunnels.json
       
-      - name: Ghi đè file ngrok_url.txt với link ngrok mới nhất
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-        run: |
-          NGROK_URL=$(cat tunnels.json | grep -o 'https://[a-zA-Z0-9\.\-]*ngrok[^"]*')
-          echo "$NGROK_URL/admin" > ngrok_url.txt
-          git config --global user.email "hientv.k64cntt-b@utb.edu.vn"
-          git config --global user.name "hientvk64cntt-b-code"
-          git add ngrok_url.txt
-          git commit -m "update ngrok url"
-          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git
-          git push origin HEAD:main
-
+  
       - name: Run chatbot server
         run: |
           node index.js &
