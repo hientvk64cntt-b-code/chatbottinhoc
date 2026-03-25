@@ -1,9 +1,9 @@
-name: Node.js Chatbot Runner
+name: Run Chatbot 24/7
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 */6 * * *' # Chạy lại mỗi 6 tiếng
 
 jobs:
   build:
