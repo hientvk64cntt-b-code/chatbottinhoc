@@ -51,6 +51,7 @@ jobs:
           git config --global user.name "hientvk64cntt-b-code"
           git add ngrok_url.txt
           git commit -m "update ngrok url"
+          git remote set-url origin https://${{ secrets.GH_PAT }}@github.com/hientvk64cntt-b-code/chatbottinhoc.git
           git push
 
       - name: Run chatbot server
