@@ -1,0 +1,3106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot Admin Panel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    :root {
+      --sidebar-width: 260px;
+      --sidebar-collapsed: 64px;
+      --topbar-height: 56px;
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #818cf8;
+      --sidebar-bg: #1e1b4b;
+      --sidebar-hover: #312e81;
+      --sidebar-active: #4338ca;
+      --sidebar-text: #c7d2fe;
+      --sidebar-text-active: #ffffff;
+      --bg-main: #f1f5f9;
+      --bg-card: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border-color: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+      --transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* ═══════════════ SIDEBAR ═══════════════ */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      z-index: 1040;
+      transition: var(--transition);
+      overflow: hidden;
+    }
+
+    .sidebar-brand {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      min-height: 56px;
+    }
+    .sidebar-brand .brand-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .sidebar-brand .brand-text {
+      color: white; font-weight: 700; font-size: 1rem;
+      white-space: nowrap;
+    }
+    .sidebar-brand .brand-text small {
+      display: block; font-size: 0.65rem; color: var(--sidebar-text);
+      font-weight: 400; margin-top: 1px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 10px;
+      overflow-y: auto;
+    }
+    .sidebar-nav::-webkit-scrollbar { width: 4px; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+
+    .nav-section-label {
+      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: rgba(255,255,255,0.3);
+      padding: 12px 12px 6px; margin-top: 4px;
+    }
+
+    .sidebar-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; margin: 2px 0;
+      color: var(--sidebar-text);
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem; font-weight: 500;
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+    }
+    .sidebar-link:hover {
+      background: var(--sidebar-hover);
+      color: var(--sidebar-text-active);
+    }
+    .sidebar-link.active {
+      background: var(--sidebar-active);
+      color: var(--sidebar-text-active);
+      box-shadow: 0 2px 8px rgba(67,56,202,0.4);
+    }
+    .sidebar-link i { width: 20px; text-align: center; font-size: 0.95rem; flex-shrink: 0; }
+    .sidebar-link .nav-badge {
+      margin-left: auto;
+      background: rgba(255,255,255,0.15);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem; font-weight: 600;
+    }
+    .sidebar-link.active .nav-badge { background: rgba(255,255,255,0.25); }
+    .sidebar-link .nav-badge.badge-danger {
+      background: var(--danger); color: white;
+    }
+    .sidebar-link .nav-badge.badge-success {
+      background: var(--success); color: white;
+    }
+
+    .sidebar-stats {
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-stat-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 8px; font-size: 0.75rem;
+      color: var(--sidebar-text);
+    }
+    .sidebar-stat-item .stat-val {
+      font-weight: 700; color: white;
+    }
+
+    .sidebar-footer {
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-status {
+      display: flex; align-items: center; gap: 8px;
+      padding: 4px 0; font-size: 0.75rem; color: var(--sidebar-text);
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-dot.on { background: var(--success); box-shadow: 0 0 6px var(--success); }
+    .status-dot.off { background: var(--danger); opacity: 0.7; }
+
+    /* ═══════════════ MAIN CONTENT ═══════════════ */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+    }
+
+    .topbar {
+      position: sticky; top: 0;
+      height: var(--topbar-height);
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      display: flex; align-items: center;
+      padding: 0 24px;
+      gap: 16px;
+      z-index: 1030;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .topbar-toggle {
+      display: none;
+      background: none; border: none;
+      font-size: 1.2rem; color: var(--text-secondary);
+      cursor: pointer; padding: 4px 8px;
+    }
+
+    .topbar-search {
+      flex: 1;
+      max-width: 480px;
+      position: relative;
+    }
+    .topbar-search input {
+      width: 100%;
+      padding: 8px 12px 8px 36px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      background: var(--bg-main);
+      transition: var(--transition);
+      outline: none;
+    }
+    .topbar-search input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+      background: white;
+    }
+    .topbar-search .search-icon {
+      position: absolute; left: 12px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted); font-size: 0.85rem;
+    }
+    .topbar-search .search-spinner {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      display: none;
+    }
+    .topbar-search .search-clear {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      color: var(--text-muted); cursor: pointer;
+      font-size: 0.8rem; display: none;
+    }
+
+    .topbar-filter {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .topbar-filter select {
+      padding: 7px 28px 7px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      background: var(--bg-main);
+      color: var(--text-primary);
+      cursor: pointer;
+      outline: none;
+    }
+    .topbar-filter select:focus {
+      border-color: var(--primary);
+    }
+
+    .topbar-actions {
+      display: flex; align-items: center; gap: 8px;
+      margin-left: auto;
+    }
+    .topbar-actions .ngrok-indicator {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 500;
+      background: rgba(239,68,68,0.1); color: var(--danger);
+    }
+    .topbar-actions .ngrok-indicator.active {
+      background: rgba(16,185,129,0.1); color: var(--success);
+    }
+
+    .content-area {
+      flex: 1;
+      padding: 20px 24px;
+    }
+
+    /* ═══════════════ SECTION PANELS ═══════════════ */
+    .section-panel { display: none; }
+    .section-panel.active { display: block; animation: fadeIn 0.2s ease; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ═══════════════ STATS ROW ═══════════════ */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      border: 1px solid var(--border-color);
+      display: flex; align-items: center; gap: 12px;
+      transition: var(--transition);
+    }
+    .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+    .stat-card .stat-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .stat-card .stat-icon.purple { background: rgba(99,102,241,0.1); color: var(--primary); }
+    .stat-card .stat-icon.blue { background: rgba(59,130,246,0.1); color: var(--info); }
+    .stat-card .stat-icon.green { background: rgba(16,185,129,0.1); color: var(--success); }
+    .stat-card .stat-icon.orange { background: rgba(245,158,11,0.1); color: var(--warning); }
+    .stat-card .stat-info h4 { font-size: 1.25rem; font-weight: 700; margin: 0; line-height: 1; }
+    .stat-card .stat-info p { font-size: 0.72rem; color: var(--text-muted); margin: 3px 0 0; }
+
+    /* ═══════════════ TOOLBAR ═══════════════ */
+    .section-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 8px;
+      margin-bottom: 16px;
+    }
+    .section-toolbar .toolbar-left {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.85rem; color: var(--text-secondary);
+    }
+    .section-toolbar .toolbar-right {
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Layout switcher (compact) */
+    .layout-switcher {
+      display: flex; border: 1px solid var(--border-color); border-radius: var(--radius-sm); overflow: hidden;
+    }
+    .layout-switcher button {
+      background: white; border: none; border-right: 1px solid var(--border-color);
+      padding: 5px 10px; font-size: 0.75rem; cursor: pointer;
+      color: var(--text-secondary); transition: var(--transition);
+    }
+    .layout-switcher button:last-child { border-right: none; }
+    .layout-switcher button:hover { background: var(--bg-main); }
+    .layout-switcher button.active { background: var(--primary); color: white; }
+
+    .filter-badge {
+      display: none;
+      padding: 4px 10px; border-radius: 20px;
+      background: rgba(59,130,246,0.1); color: var(--info);
+      font-size: 0.75rem; font-weight: 500;
+    }
+    .filter-badge.visible { display: inline-flex; align-items: center; gap: 4px; }
+
+    /* ═══════════════ QUESTION CARDS (COMPACT) ═══════════════ */
+    .questions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    .questions-grid.grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .questions-grid.grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .questions-grid.grid-5 { grid-template-columns: repeat(5, 1fr); }
+    .questions-grid.grid-6 { grid-template-columns: repeat(6, 1fr); }
+    .questions-grid.grid-all { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+
+    .q-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .q-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-light);
+    }
+    .q-card .q-header {
+      padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-main);
+    }
+    .q-card .q-header .q-num {
+      font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);
+    }
+    .q-card .q-header .q-source {
+      font-size: 0.65rem; padding: 2px 8px;
+      border-radius: 10px; font-weight: 600;
+    }
+    .q-source.src-admin { background: rgba(139,92,246,0.12); color: #7c3aed; }
+    .q-source.src-ai_generated { background: rgba(59,130,246,0.12); color: #2563eb; }
+    .q-source.src-ai_improved { background: rgba(6,182,212,0.12); color: #0891b2; }
+    .q-source.src-import { background: rgba(245,158,11,0.12); color: #d97706; }
+    .q-source.src-database { background: rgba(100,116,139,0.12); color: #475569; }
+
+    .q-card .q-body { padding: 12px 14px; }
+    .q-card .q-question {
+      font-size: 0.85rem; font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2; /* stylelint-disable-line */
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .q-card .q-answer {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      padding: 8px 10px;
+      background: var(--bg-main);
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--primary-light);
+      display: -webkit-box;
+      -webkit-line-clamp: 3; /* stylelint-disable-line */
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .q-card .q-answer + .q-answer { margin-top: 6px; }
+    .q-card .q-answer-more {
+      font-size: 0.7rem; color: var(--primary);
+      margin-top: 4px; cursor: pointer; font-weight: 500;
+    }
+    .q-card .q-footer {
+      padding: 8px 14px;
+      border-top: 1px solid var(--border-color);
+      display: flex; justify-content: flex-end; gap: 6px;
+    }
+    .q-card .q-footer .btn { font-size: 0.72rem; padding: 3px 10px; }
+
+    /* Edit mode inside card */
+    .q-card .q-edit { display: none; padding: 12px 14px; }
+    .q-card .q-edit .form-control { font-size: 0.82rem; }
+    .q-card .q-edit .form-label { font-size: 0.75rem; font-weight: 600; }
+
+    /* No-result placeholder */
+    .no-results {
+      text-align: center; padding: 48px 16px;
+      color: var(--text-muted);
+    }
+    .no-results i { font-size: 2.5rem; margin-bottom: 12px; }
+
+    /* ═══════════════ PENDING CARDS ═══════════════ */
+    .pending-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    .pending-grid.grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .pending-grid.grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .pending-grid.grid-5 { grid-template-columns: repeat(5, 1fr); }
+    .pending-grid.grid-6 { grid-template-columns: repeat(6, 1fr); }
+    .pending-grid.grid-all { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+
+    .p-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      border-left: 4px solid var(--warning);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .p-card:hover { box-shadow: var(--shadow-md); }
+    .p-card .p-header {
+      padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .p-card .p-num {
+      font-size: 0.75rem; font-weight: 600; color: var(--warning);
+    }
+    .p-card .p-body { padding: 12px 14px; }
+    .p-card .p-question {
+      font-size: 0.85rem; font-weight: 600; color: var(--text-primary);
+      margin-bottom: 8px; line-height: 1.4;
+    }
+    .p-card .p-meta {
+      font-size: 0.7rem; color: var(--text-muted);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .p-card .p-footer {
+      padding: 8px 14px;
+      border-top: 1px solid var(--border-color);
+      display: flex; justify-content: flex-end; gap: 6px;
+    }
+    .p-card .p-footer .btn { font-size: 0.72rem; padding: 3px 10px; }
+
+    .p-card .p-edit { display: none; padding: 12px 14px; }
+    .p-card .p-edit .form-control { font-size: 0.82rem; }
+    .p-card .p-edit .form-label { font-size: 0.75rem; font-weight: 600; }
+
+    /* ═══════════════ SETTINGS PANEL ═══════════════ */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 16px;
+    }
+    .settings-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .settings-card .card-header {
+      padding: 12px 16px;
+      background: var(--bg-main);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.85rem; font-weight: 600;
+    }
+    .settings-card .card-header i { color: var(--primary); }
+    .settings-card .card-body { padding: 14px 16px; }
+
+    .setting-group {
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .setting-group:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .setting-label {
+      font-size: 0.78rem; font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px; display: block;
+    }
+    .setting-value {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .current-value-display {
+      font-size: 0.82rem; padding: 6px 10px;
+      background: var(--bg-main); border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      word-break: break-all;
+    }
+    .current-value-display.clickable { cursor: pointer; }
+    .current-value-display.clickable:hover { border-color: var(--primary); }
+    .api-key-display { font-size: 0.82rem; }
+
+    .model-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      margin-bottom: 4px; cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.82rem;
+    }
+    .model-item:hover { border-color: var(--primary); background: rgba(99,102,241,0.04); }
+    .model-item.selected { border-color: var(--primary); background: rgba(99,102,241,0.08); }
+    .model-name { font-weight: 500; }
+    .model-status { font-size: 0.7rem; color: var(--success); }
+
+    /* ═══════════════ IMPORT PANEL ═══════════════ */
+    .import-panel {
+      max-width: 800px;
+    }
+    .import-dropzone {
+      border: 2px dashed var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      text-align: center;
+      transition: var(--transition);
+      background: var(--bg-card);
+    }
+    .import-dropzone:hover { border-color: var(--primary); }
+    .import-dropzone i { font-size: 2rem; color: var(--success); margin-bottom: 8px; }
+    .import-dropzone p { font-size: 0.85rem; color: var(--text-secondary); }
+
+    /* ═══════════════ DEFAULT RESPONSES ═══════════════ */
+    .dr-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 14px;
+    }
+    .dr-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden; transition: var(--transition);
+    }
+    .dr-card:hover { box-shadow: var(--shadow-md); }
+    .dr-card .dr-header {
+      padding: 10px 14px;
+      background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+      color: white;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .dr-card .dr-title { font-size: 0.85rem; font-weight: 600; }
+    .dr-card .dr-priority { font-size: 0.7rem; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; }
+    .dr-card .dr-body { padding: 12px 14px; }
+    .dr-card .dr-message {
+      background: var(--bg-main); padding: 10px;
+      border-left: 3px solid var(--primary);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.82rem; font-style: italic;
+      color: var(--text-secondary);
+      line-height: 1.5; margin-bottom: 10px;
+    }
+    .dr-card .dr-footer {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .dr-status {
+      font-size: 0.75rem; padding: 2px 10px;
+      border-radius: 10px; font-weight: 500;
+    }
+    .dr-status.active { background: rgba(16,185,129,0.1); color: var(--success); }
+    .dr-status.inactive { background: rgba(239,68,68,0.1); color: var(--danger); }
+
+    /* ═══════════════ PAGINATION ═══════════════ */
+    .pagination { margin-top: 20px; }
+    .pagination .page-link {
+      font-size: 0.8rem; padding: 6px 12px;
+      border-color: var(--border-color); color: var(--text-secondary);
+    }
+    .pagination .page-item.active .page-link {
+      background: var(--primary); border-color: var(--primary);
+    }
+
+    /* ═══════════════ CHAT WIDGET ═══════════════ */
+    .chat-fab {
+      position: fixed; bottom: 24px; right: 24px;
+      width: 54px; height: 54px;
+      background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+      border: none; border-radius: 50%;
+      color: white; font-size: 1.3rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 1051;
+      box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .chat-fab:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(99,102,241,0.5); }
+    .chat-fab.active { transform: rotate(90deg) scale(1.08); }
+    .chat-fab .fab-badge {
+      position: absolute; top: -2px; right: -2px;
+      width: 18px; height: 18px; background: var(--danger);
+      border-radius: 50%; font-size: 0.6rem; font-weight: 700;
+      display: none; align-items: center; justify-content: center;
+      border: 2px solid white;
+    }
+
+    .chat-panel {
+      position: fixed; bottom: 90px; right: 24px;
+      width: 370px; height: 500px;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+      display: flex; flex-direction: column;
+      z-index: 1050; overflow: hidden;
+      transform: scale(0.8) translateY(20px); opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform-origin: bottom right;
+    }
+    .chat-panel.open {
+      transform: scale(1) translateY(0); opacity: 1;
+      pointer-events: auto;
+    }
+
+    .chat-panel-header {
+      background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+      color: white; padding: 14px 18px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .chat-panel-header .chat-title { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 0.95rem; }
+    .chat-panel-header .chat-title .dot-online {
+      width: 8px; height: 8px; border-radius: 50%; background: #4ade80;
+      box-shadow: 0 0 6px #4ade80;
+    }
+    .chat-panel-actions { display: flex; gap: 6px; }
+    .chat-panel-actions button {
+      background: rgba(255,255,255,0.15); border: none; color: white;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: var(--transition); font-size: 0.8rem;
+    }
+    .chat-panel-actions button:hover { background: rgba(255,255,255,0.3); }
+
+    .chat-messages {
+      flex: 1; padding: 16px; overflow-y: auto;
+      background: var(--bg-main);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 10px; }
+    .message { display: flex; flex-direction: column; max-width: 82%; animation: fadeInUp 0.2s ease; }
+    .user-message { align-self: flex-end; }
+    .bot-message { align-self: flex-start; }
+    .message-content {
+      padding: 10px 14px; border-radius: 16px;
+      font-size: 0.84rem; line-height: 1.45;
+      word-break: break-word;
+    }
+    .user-message .message-content {
+      background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+      color: white; border-bottom-right-radius: 4px;
+    }
+    .bot-message .message-content {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-bottom-left-radius: 4px;
+    }
+    .bot-message .message-content .bot-icon {
+      display: inline-flex; width: 20px; height: 20px;
+      background: linear-gradient(135deg, var(--primary), #a855f7);
+      border-radius: 50%; align-items: center; justify-content: center;
+      color: white; font-size: 0.55rem; flex-shrink: 0; margin-right: 6px;
+      vertical-align: middle;
+    }
+    .message-time { font-size: 0.62rem; color: var(--text-muted); margin-top: 2px; padding: 0 4px; }
+    .user-message .message-time { text-align: right; }
+
+    .chat-input-area {
+      padding: 12px 14px; background: var(--bg-card);
+      border-top: 1px solid var(--border-color);
+    }
+    .chat-input-row { display: flex; gap: 8px; align-items: center; }
+    .chat-input {
+      flex: 1; border: 1.5px solid var(--border-color);
+      border-radius: 22px; padding: 9px 16px;
+      font-size: 0.84rem; outline: none;
+      transition: var(--transition); background: var(--bg-main);
+    }
+    .chat-input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(99,102,241,0.08); }
+    .btn-send {
+      background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+      border: none; color: white;
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: var(--transition); font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .btn-send:hover { transform: scale(1.08); }
+    .btn-send:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .typing-indicator {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 14px; background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px; border-bottom-left-radius: 4px;
+      max-width: 65px;
+    }
+    .typing-dots { display: flex; gap: 3px; }
+    .typing-dot {
+      width: 6px; height: 6px; background: var(--primary);
+      border-radius: 50%; animation: typing 1.4s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typing {
+      0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ═══════════════ NOTIFICATION SYSTEM ═══════════════ */
+    .notif-container {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 1060; display: flex;
+      flex-direction: column-reverse; gap: 8px;
+      align-items: center;
+      pointer-events: none;
+    }
+    .notif-toast {
+      background: var(--text-primary);
+      color: white;
+      border-radius: 28px;
+      padding: 10px 20px 10px 14px;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.82rem; font-weight: 500;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.22);
+      animation: notifIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      pointer-events: auto;
+      max-width: 440px;
+      backdrop-filter: blur(12px);
+    }
+    .notif-toast.toast-success { background: linear-gradient(135deg, #059669, #10b981); }
+    .notif-toast.toast-warning { background: linear-gradient(135deg, #d97706, #f59e0b); }
+    .notif-toast.toast-danger { background: linear-gradient(135deg, #dc2626, #ef4444); }
+    .notif-toast.toast-info { background: linear-gradient(135deg, #4f46e5, #6366f1); }
+    .notif-icon {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; flex-shrink: 0;
+    }
+    .notif-text { flex: 1; line-height: 1.35; }
+    .notif-close {
+      background: rgba(255,255,255,0.15); border: none; color: white;
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 0.65rem; flex-shrink: 0;
+      transition: var(--transition); margin-left: 4px;
+    }
+    .notif-close:hover { background: rgba(255,255,255,0.3); }
+    @keyframes notifIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.9); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes notifOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 0; transform: translateY(20px) scale(0.9); }
+    }
+
+    /* ═══════════════ LOG PANELS ═══════════════ */
+    .log-list { display: flex; flex-direction: column; gap: 8px; }
+    .log-item {
+      background: var(--bg-card); border-radius: var(--radius-md);
+      padding: 12px 16px; border: 1px solid var(--border-color);
+      display: flex; align-items: flex-start; gap: 12px;
+      animation: fadeInUp 0.2s ease;
+      transition: var(--transition);
+    }
+    .log-item:hover { box-shadow: var(--shadow-sm); border-color: var(--primary-light); }
+    .log-icon {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; flex-shrink: 0; color: white;
+    }
+    .log-icon.icon-success { background: linear-gradient(135deg, #059669, #10b981); }
+    .log-icon.icon-info { background: linear-gradient(135deg, #4f46e5, #6366f1); }
+    .log-icon.icon-warning { background: linear-gradient(135deg, #d97706, #f59e0b); }
+    .log-icon.icon-danger { background: linear-gradient(135deg, #dc2626, #ef4444); }
+    .log-icon.icon-bot { background: linear-gradient(135deg, var(--primary), #a855f7); }
+    .log-body { flex: 1; min-width: 0; }
+    .log-body .log-msg { font-size: 0.85rem; line-height: 1.45; word-break: break-word; }
+    .log-body .log-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 3px; display: flex; gap: 12px; }
+    .log-body .log-meta .log-type-label {
+      display: inline-block; padding: 1px 8px; border-radius: 10px;
+      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+    }
+    .log-type-label.lt-success { background: #d1fae5; color: #065f46; }
+    .log-type-label.lt-info { background: #e0e7ff; color: #3730a3; }
+    .log-type-label.lt-warning { background: #fef3c7; color: #92400e; }
+    .log-type-label.lt-danger { background: #fee2e2; color: #991b1b; }
+    .log-empty {
+      text-align: center; padding: 60px 20px; color: var(--text-muted);
+    }
+    .log-empty i { font-size: 2.5rem; margin-bottom: 12px; display: block; opacity: 0.4; }
+    .log-empty p { margin: 0; font-size: 0.9rem; }
+    .log-filter-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .log-conversation { margin-top: 6px; padding: 8px 12px; background: var(--bg-main); border-radius: var(--radius-sm); border-left: 3px solid var(--primary); }
+    .log-conversation .log-q { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 3px; }
+    .log-conversation .log-q strong { color: var(--primary); }
+    .log-conversation .log-a { font-size: 0.8rem; color: var(--text-primary); }
+    .log-conversation .log-a strong { color: #059669; }
+
+    /* ═══════════════ PULSE BADGE ═══════════════ */
+    .pulse-badge { animation: pulse 2s infinite; }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+      100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+    }
+
+    /* ═══════════════ FORM CONTROLS ═══════════════ */
+    .form-control, .form-select { font-size: 0.85rem; }
+    .form-label { font-size: 0.82rem; font-weight: 600; }
+    .form-text { font-size: 0.72rem; }
+    .auto-expand { resize: vertical; min-height: 60px; }
+
+    /* ═══════════════ BUTTONS (COMPACT) ═══════════════ */
+    .btn { font-size: 0.82rem; border-radius: var(--radius-sm); }
+    .btn-sm { font-size: 0.75rem; padding: 3px 10px; }
+
+    /* ═══════════════ INFO BANNERS ═══════════════ */
+    .info-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--info);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .info-banner strong { color: var(--text-primary); }
+    .info-banner ul { margin: 6px 0 0; padding-left: 18px; }
+    .info-banner li { margin-bottom: 2px; }
+
+    /* ═══════════════ TABLE PREVIEW ═══════════════ */
+    .table { font-size: 0.82rem; }
+    .table th { font-weight: 600; font-size: 0.78rem; }
+
+    /* ═══════════════ MODAL ═══════════════ */
+    .modal .modal-header { padding: 14px 20px; }
+    .modal .modal-body { padding: 16px 20px; }
+    .modal .modal-footer { padding: 12px 20px; }
+    .modal .modal-title { font-size: 1rem; }
+
+    /* ═══════════════ RESPONSIVE ═══════════════ */
+    @media (max-width: 992px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .topbar-toggle { display: block; }
+      .sidebar-overlay {
+        display: none;
+        position: fixed; top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4);
+        z-index: 1035;
+      }
+      .sidebar-overlay.show { display: block; }
+      .questions-grid, .pending-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .settings-grid { grid-template-columns: 1fr; }
+      .chat-panel { width: 300px; height: 420px; bottom: 80px; right: 12px; }
+      .chat-fab { bottom: 16px; right: 16px; width: 48px; height: 48px; font-size: 1.1rem; }
+    }
+    @media (max-width: 576px) {
+      .content-area { padding: 12px; }
+      .topbar { padding: 0 12px; }
+      .stats-row { grid-template-columns: 1fr; }
+      .topbar-filter { display: none; }
+    }
+
+    /* ═══════════════ NGROK SECTION ═══════════════ */
+    .ngrok-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .ngrok-panel .ngrok-url {
+      font-size: 0.82rem;
+      word-break: break-all;
+    }
+
+    /* Highlight for search */
+    mark.bg-warning { padding: 0 2px; border-radius: 2px; }
+
+    /* Answer items in edit mode */
+    .answer-item { margin-bottom: 10px; }
+    .answers-container { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon"><i class="fa fa-robot"></i></div>
+      <div class="brand-text">
+        Chatbot Admin
+        <small>Quản lý hệ thống</small>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Quản lý dữ liệu</div>
+      <a class="sidebar-link <%= tab === 'qna' ? 'active' : '' %>" id="qna-tab" data-section="qna">
+        <i class="fa-solid fa-comments"></i>
+        <span>Đã có trả lời</span>
+        <span class="nav-badge badge-success"><%= totalQuestions %></span>
+      </a>
+      <a class="sidebar-link <%= tab === 'pending' ? 'active' : '' %>" id="pending-tab" data-section="pending">
+        <i class="fa-solid fa-hourglass-half"></i>
+        <span>Chờ trả lời</span>
+        <% if (totalPending > 0) { %>
+        <span class="nav-badge badge-danger pulse-badge"><%= totalPending %></span>
+        <% } else { %>
+        <span class="nav-badge">0</span>
+        <% } %>
+      </a>
+      <a class="sidebar-link <%= tab === 'default-responses' ? 'active' : '' %>" id="default-responses-tab" data-section="default-responses">
+        <i class="fa-solid fa-reply"></i>
+        <span>Trả lời mặc định</span>
+      </a>
+
+      <div class="nav-section-label">Nhật ký</div>
+      <a class="sidebar-link <%= tab === 'notifications' ? 'active' : '' %>" id="notifications-tab" data-section="notifications">
+        <i class="fa-solid fa-bell"></i>
+        <span>Thông báo</span>
+        <span class="nav-badge" id="notifCountBadge" style="display:none"></span>
+      </a>
+      <a class="sidebar-link <%= tab === 'response-log' ? 'active' : '' %>" id="response-log-tab" data-section="response-log">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <span>Log phản hồi</span>
+        <span class="nav-badge" id="logCountBadge" style="display:none"></span>
+      </a>
+
+      <div class="nav-section-label">Công cụ</div>
+      <a class="sidebar-link <%= tab === 'import' ? 'active' : '' %>" id="import-tab" data-section="import">
+        <i class="fa-solid fa-file-excel"></i>
+        <span>Import Excel</span>
+      </a>
+      <a class="sidebar-link <%= tab === 'settings' ? 'active' : '' %>" id="settings-tab" data-section="settings">
+        <i class="fa-solid fa-cog"></i>
+        <span>Cài đặt</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-stats">
+      <div class="sidebar-stat-item">
+        <span><i class="fa fa-check-circle text-success me-1"></i> Tổng câu hỏi</span>
+        <span class="stat-val" id="sidebarStatTotal"><%= totalQuestions %></span>
+      </div>
+      <div class="sidebar-stat-item">
+        <span><i class="fa fa-clock text-warning me-1"></i> Chờ trả lời</span>
+        <span class="stat-val" id="sidebarStatPending"><%= totalPending %></span>
+      </div>
+      <div class="sidebar-stat-item">
+        <span><i class="fa fa-bolt text-info me-1"></i> Mới hôm nay</span>
+        <span class="stat-val" id="sidebarStatToday"><%= newQuestionsToday %></span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-status" id="sidebarAIStatus">
+        <span class="status-dot off" id="aiDot"></span>
+        <span>AI: <strong id="aiStatusLabel">Đang tải...</strong></span>
+      </div>
+      <div class="sidebar-status" id="sidebarTrainStatus">
+        <span class="status-dot off" id="trainDot"></span>
+        <span>Train: <strong id="trainStatusLabel">Đang tải...</strong></span>
+      </div>
+      <div class="sidebar-status" id="sidebarNgrokStatus">
+        <span class="status-dot off" id="ngrokDot"></span>
+        <span>Ngrok: <strong id="ngrokStatusLabel">Chưa bật</strong></span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════ MAIN WRAPPER ═══════════════ -->
+  <div class="main-wrapper">
+    <!-- ─── TOPBAR ─── -->
+    <header class="topbar">
+      <button class="topbar-toggle" id="sidebarToggle">
+        <i class="fa fa-bars"></i>
+      </button>
+
+      <div class="topbar-search" id="topbarSearchWrapper" style="display:none;">
+        <i class="fa fa-search search-icon"></i>
+        <input type="text" id="searchInput" placeholder="Tìm kiếm câu hỏi & trả lời..." autocomplete="off">
+        <span id="searchLoadingIndicator" class="spinner-border spinner-border-sm text-primary search-spinner" role="status"></span>
+        <button class="search-clear" id="clearSearchBtn"><i class="fa fa-times"></i></button>
+      </div>
+
+      <div class="topbar-filter" id="topbarFilterWrapper" style="display:none;">
+        <select id="sourceFilter">
+          <option value="all">Tất cả nguồn</option>
+          <option value="admin">👤 Admin</option>
+          <option value="ai_generated">🤖 AI tạo mới</option>
+          <option value="ai_improved">💡 AI cải thiện</option>
+          <option value="import">📊 Import</option>
+          <option value="database">💾 Database</option>
+        </select>
+      </div>
+
+      <span class="filter-badge" id="filterStatus">
+        <i class="fa fa-filter"></i>
+        <span id="filterStatusText"></span>
+      </span>
+
+      <div class="topbar-actions">
+        <div class="ngrok-indicator" id="ngrokTopIndicator">
+          <i class="fa fa-circle" style="font-size:6px;"></i>
+          <span>Ngrok tắt</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ─── CONTENT AREA ─── -->
+    <div class="content-area">
+
+      <!-- ═══════════════ QNA SECTION ═══════════════ -->
+      <div class="section-panel <%= tab === 'qna' ? 'active' : '' %>" id="section-qna">
+        <!-- Stats Row -->
+        <div class="stats-row" id="sourceStatsCards">
+          <div class="stat-card">
+            <div class="stat-icon purple"><i class="fa fa-user-shield"></i></div>
+            <div class="stat-info">
+              <h4 id="statAdmin"><%= sourceStats ? sourceStats.admin : 0 %></h4>
+              <p id="statAdminPct">👤 Admin tạo · <%= sourceStats && totalQuestions > 0 ? ((sourceStats.admin / totalQuestions) * 100).toFixed(1) : '0.0' %>%</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fa fa-robot"></i></div>
+            <div class="stat-info">
+              <h4 id="statAI"><%= sourceStats ? sourceStats.ai_generated + sourceStats.ai_improved : 0 %></h4>
+              <p id="statAIDetail">🤖 <span><%= sourceStats ? sourceStats.ai_generated : 0 %></span> tạo mới · 💡 <span><%= sourceStats ? sourceStats.ai_improved : 0 %></span> cải thiện</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="fa fa-database"></i></div>
+            <div class="stat-info">
+              <h4 id="statOther"><%= sourceStats ? sourceStats.import + sourceStats.database : 0 %></h4>
+              <p id="statOtherDetail">📊 <span><%= sourceStats ? sourceStats.import : 0 %></span> Excel · 💾 <span><%= sourceStats ? sourceStats.database : 0 %></span> cũ</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fa fa-chart-line"></i></div>
+            <div class="stat-info">
+              <h4><%= totalQuestions %></h4>
+              <p>Tổng cộng<% if (newQuestionsToday > 0) { %> · <span class="text-success fw-bold">+<%= newQuestionsToday %> hôm nay</span><% } %></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="section-toolbar">
+          <div class="toolbar-left">
+            <span id="qnaPageInfo">Trang <%= page %>/<%= totalPages %> · Tổng <strong><%= totalQuestions %></strong> câu hỏi</span>
+          </div>
+          <div class="toolbar-right">
+            <div class="layout-switcher">
+              <button class="layout-option active" data-layout="auto" title="2 cột"><i class="fa fa-th-large"></i></button>
+              <button class="layout-option" data-layout="3" title="3 cột">3</button>
+              <button class="layout-option" data-layout="4" title="4 cột">4</button>
+              <button class="layout-option" data-layout="5" title="5 cột">5</button>
+              <button class="layout-option" data-layout="6" title="6 cột">6</button>
+              <button class="layout-option" data-layout="all" title="Tất cả"><i class="fa fa-list"></i></button>
+            </div>
+            <% if (totalQuestions > 0) { %>
+            <form action="/admin/delete-all" method="POST" class="d-inline">
+              <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('⚠️ CẢNH BÁO: Xóa TẤT CẢ <%= totalQuestions %> câu hỏi?\n\nHành động KHÔNG THỂ hoàn tác!')">
+                <i class="fa fa-trash"></i> Xóa tất cả
+              </button>
+            </form>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Questions Grid -->
+        <div class="questions-grid" id="qnaContainer">
+          <% questions.forEach((q, index) => { %>
+          <%
+            const sourceBadges = {
+              'admin': { icon: '👤', text: 'Admin', cls: 'src-admin' },
+              'ai_generated': { icon: '🤖', text: 'AI tạo', cls: 'src-ai_generated' },
+              'ai_improved': { icon: '💡', text: 'AI cải thiện', cls: 'src-ai_improved' },
+              'import': { icon: '📊', text: 'Import', cls: 'src-import' },
+              'database': { icon: '💾', text: 'Database', cls: 'src-database' }
+            };
+            const src = q.source || 'database';
+            const badge = sourceBadges[src] || sourceBadges['database'];
+          %>
+          <div class="q-card" data-question-id="<%= q._id %>" data-index="<%= index %>">
+            <div class="q-header">
+              <span class="q-num">#<%= index + 1 + (page - 1) * pageSize %></span>
+              <span class="q-source <%= badge.cls %>"><%= badge.icon %> <%= badge.text %></span>
+            </div>
+            <!-- View mode -->
+            <div id="view-mode-<%= q._id %>">
+              <div class="q-body">
+                <div class="q-question"><i class="fa fa-question-circle text-success me-1"></i> <%= q.question %></div>
+                <% if (q.answers && q.answers.length > 0) { %>
+                  <% q.answers.slice(0, 2).forEach((answer, aIdx) => { %>
+                  <div class="q-answer"><%= answer %></div>
+                  <% }) %>
+                  <% if (q.answers.length > 2) { %>
+                  <div class="q-answer-more">+ <%= q.answers.length - 2 %> câu trả lời khác</div>
+                  <% } %>
+                <% } else { %>
+                  <div class="q-answer" style="border-left-color: var(--warning);"><i class="fa fa-exclamation-triangle text-warning me-1"></i> Chưa có trả lời</div>
+                <% } %>
+              </div>
+              <div class="q-footer">
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleEditMode('<%= q._id %>')">
+                  <i class="fa fa-edit"></i> Sửa
+                </button>
+                <form action="/admin/delete/<%= q._id %>?page=<%= page %>&tab=qna" method="POST" class="d-inline">
+                  <button class="btn btn-outline-danger btn-sm" type="submit" onclick="return confirm('Xóa câu hỏi này?')">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+            <!-- Edit mode -->
+            <div id="edit-mode-<%= q._id %>" style="display: none;">
+              <div class="q-edit" style="display:block;">
+                <form action="/admin/edit/<%= q._id %>?page=<%= page %>&tab=qna" method="POST" class="edit-form">
+                  <div class="mb-2">
+                    <label class="form-label text-success">Câu hỏi:</label>
+                    <input type="text" name="question" class="form-control" value="<%= q.question %>" required>
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label text-primary">Câu trả lời:</label>
+                    <div id="answers-container-<%= q._id %>" class="answers-container">
+                      <% if (q.answers && q.answers.length > 0) { %>
+                        <% q.answers.forEach((answer, aIdx) => { %>
+                        <div class="answer-item mb-2">
+                          <div class="d-flex align-items-start gap-2">
+                            <div class="flex-grow-1">
+                              <label class="form-label small text-muted">Trả lời <%= aIdx + 1 %>:</label>
+                              <textarea name="answers[]" class="form-control auto-expand" rows="2"><%= answer %></textarea>
+                            </div>
+                            <button type="button" class="btn btn-outline-danger btn-sm ms-1 remove-answer" title="Xóa"><i class="fa fa-times"></i></button>
+                          </div>
+                        </div>
+                        <% }) %>
+                      <% } else { %>
+                        <div class="answer-item mb-2">
+                          <div class="d-flex align-items-start gap-2">
+                            <div class="flex-grow-1">
+                              <label class="form-label small text-muted">Trả lời 1:</label>
+                              <textarea name="answers[]" class="form-control auto-expand" rows="2" placeholder="Nhập câu trả lời..."></textarea>
+                            </div>
+                            <button type="button" class="btn btn-outline-danger btn-sm ms-1 remove-answer" title="Xóa"><i class="fa fa-times"></i></button>
+                          </div>
+                        </div>
+                      <% } %>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="add-answer-<%= q._id %>">
+                      <i class="fa fa-plus"></i> Thêm trả lời
+                    </button>
+                  </div>
+                  <div class="d-flex gap-2 justify-content-end mt-2">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="toggleEditMode('<%= q._id %>')"><i class="fa fa-times"></i> Hủy</button>
+                    <button type="submit" class="btn btn-success btn-sm"><i class="fa fa-save"></i> Lưu</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+
+        <!-- Pagination -->
+        <div id="qnaPagination">
+          <% if (totalPages > 1) { %>
+          <nav><ul class="pagination justify-content-center">
+            <li class="page-item <%= page === 1 ? 'disabled' : '' %>">
+              <a class="page-link" href="/admin?tab=qna&page=<%= page - 1 %>">&laquo;</a>
+            </li>
+            <%
+              let startPage = Math.max(1, page - 2);
+              let endPage = Math.min(totalPages, page + 2);
+              if (startPage > 1) { %>
+                <li class="page-item"><a class="page-link" href="/admin?tab=qna&page=1">1</a></li>
+                <% if (startPage > 2) { %><li class="page-item disabled"><span class="page-link">...</span></li><% } %>
+              <% }
+              for (let i = startPage; i <= endPage; i++) { %>
+                <li class="page-item <%= page === i ? 'active' : '' %>"><a class="page-link" href="/admin?tab=qna&page=<%= i %>"><%= i %></a></li>
+              <% }
+              if (endPage < totalPages) { %>
+                <% if (endPage < totalPages - 1) { %><li class="page-item disabled"><span class="page-link">...</span></li><% } %>
+                <li class="page-item"><a class="page-link" href="/admin?tab=qna&page=<%= totalPages %>"><%= totalPages %></a></li>
+              <% } %>
+            <li class="page-item <%= page === totalPages ? 'disabled' : '' %>">
+              <a class="page-link" href="/admin?tab=qna&page=<%= page + 1 %>">&raquo;</a>
+            </li>
+          </ul></nav>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- ═══════════════ PENDING SECTION ═══════════════ -->
+      <div class="section-panel <%= tab === 'pending' ? 'active' : '' %>" id="section-pending">
+        <div class="info-banner">
+          <strong><i class="fa fa-lightbulb text-warning me-1"></i> Câu hỏi chờ trả lời</strong> — Những câu hỏi bot chưa tìm thấy câu trả lời phù hợp. Click "Trả lời" để tạo Q&A mới.
+        </div>
+        <div class="section-toolbar" id="pendingToolbar" style="display:none;">
+          <div class="toolbar-left"><span id="pendingPageInfo"></span></div>
+          <div class="toolbar-right">
+            <div class="layout-switcher">
+              <button class="pending-layout-option active" data-layout="auto"><i class="fa fa-th-large"></i></button>
+              <button class="pending-layout-option" data-layout="3">3</button>
+              <button class="pending-layout-option" data-layout="4">4</button>
+              <button class="pending-layout-option" data-layout="5">5</button>
+              <button class="pending-layout-option" data-layout="6">6</button>
+              <button class="pending-layout-option" data-layout="all"><i class="fa fa-list"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="pending-grid" id="pendingContainer"></div>
+        <div id="pendingPagination"></div>
+      </div>
+
+      <!-- ═══════════════ DEFAULT RESPONSES SECTION ═══════════════ -->
+      <div class="section-panel <%= tab === 'default-responses' ? 'active' : '' %>" id="section-default-responses">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0" style="font-size:1rem;"><i class="fa fa-reply text-primary me-2"></i>Câu trả lời mặc định</h5>
+          <button class="btn btn-primary btn-sm" onclick="showAddDefaultResponseModal()">
+            <i class="fa fa-plus me-1"></i> Thêm mới
+          </button>
+        </div>
+        <div class="info-banner">
+          <i class="fa fa-info-circle text-info me-1"></i>
+          Câu trả lời mặc định được dùng khi bot không tìm thấy câu trả lời phù hợp và AI không bật. Bot sẽ chọn ngẫu nhiên từ các câu có ưu tiên cao nhất.
+        </div>
+        <div id="defaultResponsesList" class="dr-grid">
+          <!-- Loaded via JS -->
+        </div>
+      </div>
+
+      <!-- ═══════════════ IMPORT SECTION ═══════════════ -->
+      <div class="section-panel <%= tab === 'import' ? 'active' : '' %>" id="section-import">
+        <div class="import-panel">
+          <div class="info-banner">
+            <strong><i class="fa fa-file-excel text-success me-1"></i> Import Excel</strong> — Thêm nhanh nhiều Q&A từ file Excel vào database.
+            <ul>
+              <li>Cột đầu = Câu hỏi, các cột sau = Câu trả lời</li>
+              <li>Hỗ trợ .xlsx, .xls · Tự bỏ qua câu trùng lặp</li>
+            </ul>
+          </div>
+
+          <div class="import-dropzone mb-3">
+            <form id="importForm" action="/admin/import" method="POST" enctype="multipart/form-data">
+              <i class="fa fa-cloud-upload-alt d-block"></i>
+              <p class="mb-2">Chọn file Excel (.xlsx, .xls)</p>
+              <input type="file" class="form-control mb-3" id="excelFile" name="excelFile" accept=".xlsx,.xls" required style="max-width:400px; margin:0 auto;">
+              <div class="d-flex gap-2 justify-content-center">
+                <button type="submit" class="btn btn-success"><i class="fa fa-upload me-1"></i> Import</button>
+                <button type="button" class="btn btn-outline-info" onclick="downloadTemplate()"><i class="fa fa-download me-1"></i> Tải mẫu</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="settings-card">
+            <div class="card-header"><i class="fa fa-table me-2"></i>Mẫu file Excel</div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-striped mb-0">
+                  <thead><tr>
+                    <th class="text-center"><i class="fa fa-question-circle me-1"></i>Câu hỏi</th>
+                    <th class="text-center"><i class="fa fa-reply me-1"></i>Trả lời 1</th>
+                    <th class="text-center"><i class="fa fa-reply me-1"></i>Trả lời 2</th>
+                    <th class="text-center"><i class="fa fa-reply me-1"></i>Trả lời 3</th>
+                  </tr></thead>
+                  <tbody>
+                    <tr><td class="text-center">Xin chào</td><td>Chào bạn!</td><td>Xin chào!</td><td>Chào mừng bạn!</td></tr>
+                    <tr><td class="text-center">Bạn là ai?</td><td>Tôi là chatbot AI</td><td>Tôi là trợ lý ảo</td><td></td></tr>
+                    <tr><td class="text-center">Giờ làm việc</td><td>8:00-17:00, T2-T6</td><td>T7: 8:00-12:00</td><td>CN nghỉ</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ SETTINGS SECTION ═══════════════ -->
+      <div class="section-panel <%= tab === 'settings' ? 'active' : '' %>" id="section-settings">
+        <div class="info-banner">
+          <strong><i class="fa fa-cog text-primary me-1"></i> Cài đặt hệ thống</strong> — Tùy chỉnh AI, token kết nối, threshold, ngrok.
+        </div>
+
+        <!-- Ngrok Panel -->
+        <div class="ngrok-panel">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+            <h6 class="mb-0" style="font-size:0.9rem;"><i class="fa fa-bolt text-info me-1"></i> Ngrok Tunnel</h6>
+            <div class="d-flex gap-2">
+              <button id="ngrokBtn" class="btn btn-info btn-sm"><i class="fa fa-bolt"></i> Bật ngrok</button>
+              <button id="ngrokForceKillBtn" class="btn btn-warning btn-sm" style="display:none;"><i class="fa fa-exclamation-triangle"></i> Force Kill</button>
+            </div>
+          </div>
+          <div id="ngrokStatus" class="small"></div>
+        </div>
+
+        <div class="settings-grid">
+          <!-- AI Config -->
+          <div class="settings-card">
+            <div class="card-header"><h6 class="mb-0"><i class="fa fa-robot me-2"></i>Cài đặt AI</h6></div>
+            <div class="card-body">
+              <div class="setting-group">
+                <label class="setting-label">API Key:</label>
+                <div class="setting-value">
+                  <div class="current-value-display clickable" onclick="toggleEditForm('geminiApiKeyForm')">
+                    <code class="api-key-display" id="geminiApiKeyStatus">(not set)</code>
+                  </div>
+                </div>
+                <div class="collapse mt-2" id="geminiApiKeyForm">
+                  <form id="setGeminiApiKeyForm" class="d-flex gap-2">
+                    <input type="password" class="form-control form-control-sm" id="geminiApiKeyInput" placeholder="GEMINI API KEY">
+                    <button class="btn btn-success btn-sm" type="submit">Lưu</button>
+                    <button class="btn btn-secondary btn-sm" type="button" onclick="toggleEditForm('geminiApiKeyForm')">Hủy</button>
+                  </form>
+                </div>
+              </div>
+              <div class="setting-group">
+                <label class="setting-label">Model:</label>
+                <div class="setting-value">
+                  <div class="current-value-display clickable" onclick="toggleEditForm('modelSelectForm')">
+                    <code class="api-key-display" id="currentModel">(not set)</code>
+                  </div>
+                </div>
+                <div class="collapse mt-2" id="modelSelectForm">
+                  <div class="d-flex gap-2 mb-2 flex-wrap">
+                    <button class="btn btn-primary btn-sm" id="loadModelsBtn">Tải danh sách</button>
+                    <button class="btn btn-info btn-sm" id="testApiBtn" onclick="testGeminiApiForModels()">Test API</button>
+                    <button class="btn btn-success btn-sm" id="reloadApiBtn" onclick="reloadApiKey()">Reload Key</button>
+                    <button class="btn btn-warning btn-sm" id="forceSwitchBtn" onclick="forceSwitchToFlash()">→ 2.0-flash</button>
+                    <button class="btn btn-secondary btn-sm" onclick="toggleEditForm('modelSelectForm')">Hủy</button>
+                  </div>
+                  <div id="modelsList"><div class="text-muted small">Nhấn "Tải danh sách" để xem model có sẵn</div></div>
+                </div>
+              </div>
+              <div class="setting-group">
+                <label class="setting-label">Trạng thái AI:</label>
+                <div class="setting-value">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="aiToggleSwitch" checked>
+                    <label class="form-check-label" for="aiToggleSwitch"><span id="aiToggleText">Đang bật</span></label>
+                  </div>
+                </div>
+              </div>
+              <div class="setting-group">
+                <label class="setting-label">Train AI:</label>
+                <div class="setting-value">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="aiTrainToggleSwitch" checked>
+                    <label class="form-check-label" for="aiTrainToggleSwitch"><span id="aiTrainToggleText">Đang bật</span></label>
+                  </div>
+                </div>
+                <small class="text-muted" style="font-size:0.7rem;">Tự động lưu câu trả lời AI vào database</small>
+              </div>
+              <div class="setting-group">
+                <label class="setting-label">Kiểm tra kết nối:</label>
+                <div class="setting-value">
+                  <code class="api-key-display" id="geminiStatus">Chưa kiểm tra</code>
+                  <button class="btn btn-info btn-sm" id="testGeminiBtn">Kiểm tra</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Prompt -->
+          <div class="settings-card">
+            <div class="card-header"><h6 class="mb-0"><i class="fa fa-edit me-2"></i>AI Prompt</h6></div>
+            <div class="card-body">
+              <div class="setting-group">
+                <label class="setting-label">Prompt hiện tại:</label>
+                <div class="current-value-display clickable" onclick="toggleEditForm('aiPromptForm')">
+                  <code class="api-key-display" id="aiPromptStatus">Click để chỉnh sửa</code>
+                </div>
+                <div class="collapse mt-2" id="aiPromptForm">
+                  <form id="setAiPromptForm">
+                    <textarea class="form-control" id="aiPromptInput" rows="12" style="font-family:monospace; font-size:11px;" placeholder="Nhập AI Prompt..."></textarea>
+                    <div class="d-flex gap-2 mt-2">
+                      <button class="btn btn-success btn-sm" type="submit">Lưu</button>
+                      <button class="btn btn-secondary btn-sm" type="button" onclick="toggleEditForm('aiPromptForm')">Hủy</button>
+                      <button class="btn btn-info btn-sm" type="button" onclick="resetDefaultPrompt()">Reset</button>
+                    </div>
+                  </form>
+                </div>
+                <small class="text-muted" style="font-size:0.7rem;">
+                  <code>{{answerContext}}</code> = ngữ cảnh từ DB · <code>{{originalQuestion}}</code> = câu hỏi người dùng
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Thresholds -->
+          <div class="settings-card">
+            <div class="card-header"><h6 class="mb-0"><i class="fa fa-sliders me-2"></i>Ngưỡng Điểm AI</h6></div>
+            <div class="card-body">
+              <div class="setting-group">
+                <label class="setting-label">Ngưỡng hiện tại:</label>
+                <div class="current-value-display clickable" onclick="toggleEditForm('thresholdForm')">
+                  <code class="api-key-display" id="thresholdStatus">Click để chỉnh sửa</code>
+                </div>
+                <div class="collapse mt-2" id="thresholdForm">
+                  <form id="setThresholdForm">
+                    <div class="mb-2">
+                      <label class="form-label small">Ngưỡng Cao (≥ dùng DB trực tiếp)</label>
+                      <input type="number" class="form-control form-control-sm" id="scoreThresholdHighInput" step="0.1" min="0" max="1" placeholder="0.4" required>
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label small">Ngưỡng Thấp (&lt; AI generate mới)</label>
+                      <input type="number" class="form-control form-control-sm" id="scoreThresholdLowInput" step="0.1" min="0" max="1" placeholder="0.3" required>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-success btn-sm" type="submit">Lưu</button>
+                      <button class="btn btn-secondary btn-sm" type="button" onclick="toggleEditForm('thresholdForm')">Hủy</button>
+                    </div>
+                  </form>
+                </div>
+                <small class="text-muted" style="font-size:0.7rem;">
+                  ≥ Cao → DB trực tiếp · Giữa → AI cải thiện · &lt; Thấp → AI tạo mới
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Page Token -->
+          <div class="settings-card">
+            <div class="card-header"><h6 class="mb-0"><i class="fa-brands fa-facebook me-2"></i>Page Access Token</h6></div>
+            <div class="card-body">
+              <div class="setting-group">
+                <label class="setting-label">Token:</label>
+                <div class="setting-value">
+                  <div class="current-value-display clickable" onclick="toggleEditForm('pageTokenForm')">
+                    <code class="api-key-display" id="pageTokenStatus">(not set)</code>
+                  </div>
+                </div>
+                <div class="collapse mt-2" id="pageTokenForm">
+                  <form id="setPageTokenForm" class="d-flex gap-2">
+                    <input type="password" class="form-control form-control-sm" id="pageTokenInput" placeholder="PAGE ACCESS TOKEN">
+                    <button class="btn btn-success btn-sm" type="submit">Lưu</button>
+                    <button class="btn btn-secondary btn-sm" type="button" onclick="toggleEditForm('pageTokenForm')">Hủy</button>
+                  </form>
+                </div>
+              </div>
+              <div class="setting-group">
+                <label class="setting-label">Trạng thái:</label>
+                <div class="setting-value">
+                  <code class="api-key-display" id="pageTokenConnectionStatus">Chưa kiểm tra</code>
+                  <button class="btn btn-info btn-sm" id="testPageTokenBtn">Kiểm tra</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Verify Token -->
+          <div class="settings-card">
+            <div class="card-header"><h6 class="mb-0"><i class="fa fa-shield-alt me-2"></i>Verify Token</h6></div>
+            <div class="card-body">
+              <div class="setting-group">
+                <label class="setting-label">Token:</label>
+                <div class="setting-value">
+                  <div class="current-value-display clickable" onclick="toggleEditForm('verifyTokenForm')">
+                    <code class="api-key-display" id="verifyTokenStatus">(not set)</code>
+                  </div>
+                </div>
+                <div class="collapse mt-2" id="verifyTokenForm">
+                  <form id="setVerifyTokenForm" class="d-flex gap-2">
+                    <input type="text" class="form-control form-control-sm" id="verifyTokenInput" placeholder="VERIFY TOKEN">
+                    <button class="btn btn-success btn-sm" type="submit">Lưu</button>
+                    <button class="btn btn-secondary btn-sm" type="button" onclick="toggleEditForm('verifyTokenForm')">Hủy</button>
+                  </form>
+                </div>
+              </div>
+              <div class="setting-group">
+                <label class="setting-label">Trạng thái:</label>
+                <div class="setting-value">
+                  <code class="api-key-display" id="verifyTokenConnectionStatus">Chưa kiểm tra</code>
+                  <button class="btn btn-info btn-sm" id="testVerifyTokenBtn">Kiểm tra</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- System Info -->
+          <div class="settings-card">
+            <div class="card-header"><h6 class="mb-0"><i class="fa fa-info-circle me-2"></i>Thông tin hệ thống</h6></div>
+            <div class="card-body">
+              <div class="setting-group">
+                <label class="setting-label">Trạng thái:</label>
+                <div class="setting-value"><span class="badge bg-success" id="uptimeStatus">Đang chạy</span></div>
+              </div>
+              <div class="setting-group">
+                <label class="setting-label">Phiên bản:</label>
+                <div class="setting-value"><span class="badge bg-info">v1.0.0</span></div>
+              </div>
+              <div class="setting-group">
+                <label class="setting-label">Ngrok:</label>
+                <div class="setting-value">
+                  <span class="badge bg-secondary me-1" id="ngrokStatusBadge">Chưa bật</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ NOTIFICATIONS SECTION ═══════════════ -->
+      <div class="section-panel <%= tab === 'notifications' ? 'active' : '' %>" id="section-notifications">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0" style="font-weight:700;"><i class="fa fa-bell me-2 text-primary"></i>Lịch sử thông báo</h5>
+          <button class="btn btn-outline-danger btn-sm" id="clearNotifsBtn"><i class="fa fa-trash me-1"></i>Xóa tất cả</button>
+        </div>
+        <div class="log-filter-bar mb-3">
+          <select id="notifTypeFilter" class="form-select form-select-sm" style="width:auto;display:inline-block;">
+            <option value="all">Tất cả loại</option>
+            <option value="success">✅ Thành công</option>
+            <option value="info">ℹ️ Thông tin</option>
+            <option value="warning">⚠️ Cảnh báo</option>
+            <option value="danger">❌ Lỗi</option>
+          </select>
+          <span class="text-muted small ms-2" id="notifCount"></span>
+        </div>
+        <div id="notifLogList" class="log-list"></div>
+        <div id="notifEmptyState" class="log-empty" style="display:none;">
+          <i class="fa fa-bell-slash"></i>
+          <p>Chưa có thông báo nào</p>
+        </div>
+      </div>
+
+      <!-- ═══════════════ RESPONSE LOG SECTION ═══════════════ -->
+      <div class="section-panel <%= tab === 'response-log' ? 'active' : '' %>" id="section-response-log">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0" style="font-weight:700;"><i class="fa fa-clipboard-list me-2 text-primary"></i>Log phản hồi chatbot</h5>
+          <button class="btn btn-outline-danger btn-sm" id="clearLogsBtn"><i class="fa fa-trash me-1"></i>Xóa tất cả</button>
+        </div>
+        <div class="log-filter-bar mb-3">
+          <input type="text" id="logSearchInput" class="form-control form-control-sm d-inline-block" style="width:260px;" placeholder="Tìm trong log...">
+          <span class="text-muted small ms-2" id="logCount"></span>
+        </div>
+        <div id="responseLogList" class="log-list"></div>
+        <div id="logEmptyState" class="log-empty" style="display:none;">
+          <i class="fa fa-clipboard"></i>
+          <p>Chưa có log phản hồi. Gửi tin nhắn test để bắt đầu!</p>
+        </div>
+      </div>
+
+    </div><!-- content-area -->
+  </div><!-- main-wrapper -->
+
+  <!-- Chat FAB + Panel -->
+  <button class="chat-fab" id="chatFab" title="Test Chat">
+    <i class="fa fa-comments"></i>
+    <span class="fab-badge" id="chatBadge">!</span>
+  </button>
+  <div class="chat-panel" id="chatPanel">
+    <div class="chat-panel-header">
+      <div class="chat-title"><span class="dot-online"></span><span>Test Chatbot</span></div>
+      <div class="chat-panel-actions">
+        <button id="chatClearBtn" title="Xóa lịch sử"><i class="fa fa-trash-alt"></i></button>
+        <button id="chatCloseBtn" title="Đóng"><i class="fa fa-times"></i></button>
+      </div>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-area">
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" class="chat-input" placeholder="Nhập tin nhắn test..." autocomplete="off">
+        <button id="sendMessage" class="btn-send"><i class="fa fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Default Response Modal -->
+  <div class="modal fade" id="defaultResponseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="defaultResponseModalLabel">Thêm câu trả lời mặc định</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="defaultResponseForm">
+            <input type="hidden" id="defaultResponseId" name="id">
+            <div class="mb-3">
+              <label for="defaultResponseName" class="form-label">Tên <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="defaultResponseName" name="name" required>
+            </div>
+            <div class="mb-3">
+              <label for="defaultResponseMessage" class="form-label">Nội dung <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="defaultResponseMessage" name="message" rows="4" required></textarea>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="defaultResponsePriority" class="form-label">Ưu tiên</label>
+                  <select class="form-select" id="defaultResponsePriority" name="priority">
+                    <option value="1">1 - Cao nhất</option>
+                    <option value="2">2 - Cao</option>
+                    <option value="3">3 - Trung bình</option>
+                    <option value="4">4 - Thấp</option>
+                    <option value="5">5 - Thấp nhất</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <div class="form-check form-switch mt-4">
+                    <input class="form-check-input" type="checkbox" id="defaultResponseActive" name="isActive" checked>
+                    <label class="form-check-label" for="defaultResponseActive">Kích hoạt</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-primary btn-sm" onclick="saveDefaultResponse()">Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script id="ejs-data"
+    data-total-questions="<%= totalQuestions %>"
+    data-total-pending="<%= totalPending %>"
+    data-new-today="<%= newQuestionsToday %>"
+    data-page="<%= page %>"
+    data-page-size="<%= pageSize %>"
+  ></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  // ═══════════════════════════════════════════════════════════════
+  // SIDEBAR & NAVIGATION
+  // ═══════════════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', function() {
+    const url = new URL(window.location.href);
+    const currentTab = url.searchParams.get('tab') || 'qna';
+
+    // Sidebar toggle (mobile)
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const toggleBtn = document.getElementById('sidebarToggle');
+
+    toggleBtn.addEventListener('click', function() {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('show');
+    });
+    overlay.addEventListener('click', function() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    });
+
+    // Show/hide topbar search & filter based on active section
+    function updateTopbar(section) {
+      const searchWrapper = document.getElementById('topbarSearchWrapper');
+      const filterWrapper = document.getElementById('topbarFilterWrapper');
+      if (section === 'qna') {
+        searchWrapper.style.display = '';
+        filterWrapper.style.display = '';
+      } else {
+        searchWrapper.style.display = 'none';
+        filterWrapper.style.display = 'none';
+      }
+    }
+
+    // Initialize sections
+    function initSections() {
+      document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+      const activePanel = document.getElementById('section-' + currentTab);
+      const activeLink = document.getElementById(currentTab + '-tab');
+      if (activePanel) activePanel.classList.add('active');
+      if (activeLink) activeLink.classList.add('active');
+      updateTopbar(currentTab);
+
+      if (currentTab === 'default-responses') {
+        setTimeout(() => { if (typeof loadDefaultResponses === 'function') loadDefaultResponses(); }, 300);
+      }
+    }
+    initSections();
+
+    // Sidebar link clicks — client-side switch (no reload)
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        const section = this.dataset.section;
+        // Switch panels client-side
+        document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        const panel = document.getElementById('section-' + section);
+        if (panel) panel.classList.add('active');
+        this.classList.add('active');
+        updateTopbar(section);
+        // Update URL without reload
+        const navUrl = new URL(window.location.href);
+        navUrl.searchParams.set('tab', section);
+        window.history.pushState({tab: section}, '', navUrl.toString());
+        // Lazy-load sections
+        if (section === 'qna' && typeof fetchQuestions === 'function') fetchQuestions();
+        if (section === 'pending' && typeof loadPendingQuestions === 'function') loadPendingQuestions();
+        if (section === 'default-responses' && typeof loadDefaultResponses === 'function') loadDefaultResponses();
+        if (section === 'settings' && typeof loadCurrentSettings === 'function') loadCurrentSettings();
+        if (section === 'notifications' && typeof renderNotifLog === 'function') renderNotifLog();
+        if (section === 'response-log' && typeof renderRespLog === 'function') renderRespLog();
+        // Close sidebar on mobile
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+      });
+    });
+    // Handle browser back/forward
+    window.addEventListener('popstate', function(e) {
+      const t = new URL(window.location.href).searchParams.get('tab') || 'qna';
+      document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+      const panel = document.getElementById('section-' + t);
+      const link = document.getElementById(t + '-tab');
+      if (panel) panel.classList.add('active');
+      if (link) link.classList.add('active');
+      updateTopbar(t);
+      // Refresh data for the active tab
+      if (t === 'qna' && typeof fetchQuestions === 'function') fetchQuestions();
+      if (t === 'pending' && typeof loadPendingQuestions === 'function') loadPendingQuestions();
+      if (t === 'default-responses' && typeof loadDefaultResponses === 'function') loadDefaultResponses();
+      if (t === 'settings' && typeof loadCurrentSettings === 'function') loadCurrentSettings();
+      if (t === 'notifications' && typeof renderNotifLog === 'function') renderNotifLog();
+      if (t === 'response-log' && typeof renderRespLog === 'function') renderRespLog();
+    });
+
+    // Import success check
+    if (url.searchParams.get('import') === 'success') {
+      const success = url.searchParams.get('success') || 0;
+      const duplicate = url.searchParams.get('duplicate') || 0;
+      const error = url.searchParams.get('error') || 0;
+      let message = '';
+      if (success > 0) message += `✅ Thêm ${success} câu hỏi. `;
+      if (duplicate > 0) message += `⚠️ Bỏ qua ${duplicate} trùng. `;
+      if (error > 0) message += `❌ ${error} lỗi. `;
+      showToast(message || 'Import hoàn tất', success > 0 ? 'success' : 'warning');
+      url.searchParams.delete('import'); url.searchParams.delete('success');
+      url.searchParams.delete('duplicate'); url.searchParams.delete('error');
+      window.history.replaceState({}, '', url.toString());
+    } else if (url.searchParams.get('import') === 'error') {
+      showToast('Import thất bại: ' + (url.searchParams.get('message') || 'Lỗi'), 'danger');
+      url.searchParams.delete('import'); url.searchParams.delete('message');
+      window.history.replaceState({}, '', url.toString());
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // AI / TRAIN STATUS (sidebar)
+  // ═══════════════════════════════════════════════════════════════
+  function loadAIStatus() {
+    fetch('/api/settings/ai-enabled')
+      .then(r => r.json())
+      .then(data => { if (data.success) updateAIStatusDisplay(data.value); })
+      .catch(() => updateAIStatusDisplay(false));
+    fetch('/api/settings/ai-train-enabled')
+      .then(r => r.json())
+      .then(data => { if (data.success) updateAITrainStatusDisplay(data.value); })
+      .catch(() => updateAITrainStatusDisplay(false));
+  }
+  function updateAIStatusDisplay(on) {
+    const dot = document.getElementById('aiDot');
+    const label = document.getElementById('aiStatusLabel');
+    if (dot) { dot.className = 'status-dot ' + (on ? 'on' : 'off'); }
+    if (label) label.textContent = on ? 'Đang bật' : 'Đang tắt';
+  }
+  function updateAITrainStatusDisplay(on) {
+    const dot = document.getElementById('trainDot');
+    const label = document.getElementById('trainStatusLabel');
+    if (dot) { dot.className = 'status-dot ' + (on ? 'on' : 'off'); }
+    if (label) label.textContent = on ? 'Đang bật' : 'Đang tắt';
+  }
+  loadAIStatus();
+
+  // ═══════════════════════════════════════════════════════════════
+  // NGROK
+  // ═══════════════════════════════════════════════════════════════
+  function updateNgrokStatus() {
+    fetch('/admin/ngrok-status').then(r => r.json()).then(data => {
+      const statusDiv = document.getElementById('ngrokStatus');
+      const ngrokBtn = document.getElementById('ngrokBtn');
+      const forceKillBtn = document.getElementById('ngrokForceKillBtn');
+      const topIndicator = document.getElementById('ngrokTopIndicator');
+      const ngrokDot = document.getElementById('ngrokDot');
+      const ngrokLabel = document.getElementById('ngrokStatusLabel');
+
+      if (data.active && data.url) {
+        statusDiv.innerHTML = `<a href='${data.url}/webhook' target='_blank' class='ngrok-url'>${data.url}/webhook</a> <button id='copyNgrokUrl' class='btn btn-sm btn-outline-secondary ms-2'><i class='fa fa-copy'></i></button>`;
+        setTimeout(() => {
+          const cb = document.getElementById('copyNgrokUrl');
+          if (cb) cb.onclick = () => { navigator.clipboard.writeText(data.url + '/webhook').then(() => { cb.innerHTML = '<i class="fa fa-check"></i>'; setTimeout(() => { cb.innerHTML = '<i class="fa fa-copy"></i>'; }, 1500); }); };
+        }, 50);
+        ngrokBtn.className = 'btn btn-danger btn-sm'; ngrokBtn.innerHTML = '<i class="fa fa-power-off"></i> Tắt';
+        ngrokBtn.dataset.active = 'true'; forceKillBtn.style.display = 'inline-block';
+        if (topIndicator) { topIndicator.className = 'ngrok-indicator active'; topIndicator.querySelector('span').textContent = 'Ngrok ON'; }
+        if (ngrokDot) ngrokDot.className = 'status-dot on';
+        if (ngrokLabel) ngrokLabel.textContent = 'Đang chạy';
+        const badge = document.getElementById('ngrokStatusBadge');
+        if (badge) { badge.innerText = 'Đang chạy'; badge.className = 'badge bg-success me-2'; }
+      } else {
+        statusDiv.innerHTML = '<span class="text-muted small">Chưa bật</span>';
+        ngrokBtn.className = 'btn btn-info btn-sm'; ngrokBtn.innerHTML = '<i class="fa fa-bolt"></i> Bật ngrok';
+        ngrokBtn.dataset.active = 'false'; forceKillBtn.style.display = 'none';
+        if (topIndicator) { topIndicator.className = 'ngrok-indicator'; topIndicator.querySelector('span').textContent = 'Ngrok tắt'; }
+        if (ngrokDot) ngrokDot.className = 'status-dot off';
+        if (ngrokLabel) ngrokLabel.textContent = 'Chưa bật';
+        const badge = document.getElementById('ngrokStatusBadge');
+        if (badge) { badge.innerText = 'Chưa bật'; badge.className = 'badge bg-secondary me-2'; }
+      }
+    });
+  }
+  function updateNgrokStatusForSettings() { updateNgrokStatus(); }
+
+  document.getElementById('ngrokBtn').onclick = function() {
+    const ngrokBtn = this; const statusDiv = document.getElementById('ngrokStatus');
+    ngrokBtn.disabled = true;
+    if (ngrokBtn.dataset.active === 'true') {
+      ngrokBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Tắt...';
+      fetch('/admin/ngrok/stop', { method: 'POST' }).then(r => r.json()).then(data => {
+        ngrokBtn.disabled = false; updateNgrokStatus();
+        if (!data.success) alert('Lỗi: ' + (data.error || data.message));
+      }).catch(e => { ngrokBtn.disabled = false; updateNgrokStatus(); alert('Lỗi: ' + e.message); });
+    } else {
+      ngrokBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Bật...';
+      fetch('/admin/ngrok', { method: 'POST' }).then(r => r.json()).then(data => {
+        ngrokBtn.disabled = false; updateNgrokStatus();
+        if (!data.success) alert('Lỗi ngrok: ' + data.error);
+      }).catch(e => { ngrokBtn.disabled = false; updateNgrokStatus(); alert('Lỗi: ' + e.message); });
+    }
+  };
+  document.getElementById('ngrokForceKillBtn').onclick = function() {
+    if (!confirm('Force kill ngrok?')) return;
+    const btn = this; btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+    fetch('/admin/ngrok/force-kill', { method: 'POST' }).then(r => r.json()).then(data => {
+      btn.disabled = false; btn.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Force Kill';
+      updateNgrokStatus(); alert(data.success ? '✅ ' + data.message : '❌ ' + (data.error || data.message));
+    }).catch(e => { btn.disabled = false; btn.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Force Kill'; updateNgrokStatus(); });
+  };
+  updateNgrokStatus();
+
+  // ═══════════════════════════════════════════════════════════════
+  // LOAD GENAI STATUS (for legacy elements)
+  // ═══════════════════════════════════════════════════════════════
+  async function loadGenAIStatus() {
+    try {
+      const genaiModelEl = document.getElementById('genaiModel');
+      const useAICheckEl = document.getElementById('useAICheck');
+      if (!genaiModelEl && !useAICheckEl) return;
+      if (genaiModelEl) { const m = await fetch('/admin/genai-model').then(r=>r.json()); genaiModelEl.innerText = m.model||'(not set)'; }
+      if (useAICheckEl) { const u = await fetch('/admin/use-ai').then(r=>r.json()); useAICheckEl.checked = !!u.useAI; }
+      const toks = await fetch('/admin/tokens').then(r=>r.json());
+      const el = id => document.getElementById(id);
+      if (el('apiKeyMasked')) el('apiKeyMasked').innerText = toks.genaiApiKey ? '(API key set)' : '(not set)';
+      if (el('maskedTokens')) el('maskedTokens').innerText = `API: ${toks.genaiApiKey||'(none)'} | PAGE: ${toks.pageAccessToken||'(none)'} | VERIFY: ${toks.verifyToken||'(none)'}`;
+      updateNgrokStatusForSettings();
+    } catch(e) { console.error('loadGenAIStatus error', e); }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SETTINGS
+  // ═══════════════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', function() {
+    loadCurrentSettings();
+
+    const bindForm = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener('submit', e => { e.preventDefault(); fn(); }); };
+    bindForm('setGeminiApiKeyForm', saveGeminiApiKey);
+    bindForm('setPageTokenForm', savePageToken);
+    bindForm('setVerifyTokenForm', saveVerifyToken);
+    bindForm('setAiPromptForm', saveAiPrompt);
+    bindForm('setThresholdForm', saveThresholds);
+
+    const bindClick = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); };
+    bindClick('testGeminiBtn', testGeminiApi);
+    bindClick('testPageTokenBtn', testPageToken);
+    bindClick('testVerifyTokenBtn', testVerifyToken);
+    bindClick('aiToggleSwitch', null);
+    bindClick('loadModelsBtn', loadAvailableModels);
+
+    const aiToggle = document.getElementById('aiToggleSwitch');
+    if (aiToggle) aiToggle.addEventListener('change', toggleAI);
+    const trainToggle = document.getElementById('aiTrainToggleSwitch');
+    if (trainToggle) trainToggle.addEventListener('change', toggleAITrain);
+  });
+
+  function loadCurrentSettings() {
+    const loadSetting = (url, callback) => {
+      fetch(url).then(r=>r.json()).then(callback).catch(()=>{});
+    };
+    loadSetting('/api/settings/gemini-api-key', data => {
+      if (!data.success) return;
+      const el = document.getElementById('geminiApiKeyStatus');
+      if (el) { el.textContent = data.value?.trim() ? data.value : '(not set)'; el.style.color = data.value?.trim() ? '#28a745' : '#6c757d'; }
+    });
+    loadSetting('/api/settings/current-model', data => {
+      if (!data.success) return;
+      const el = document.getElementById('currentModel');
+      if (el) { el.textContent = data.value?.trim() ? data.value : '(not set)'; el.style.color = data.value?.trim() ? '#28a745' : '#6c757d'; }
+    });
+    loadSetting('/api/settings/ai-enabled', data => {
+      if (!data.success) return;
+      const t = document.getElementById('aiToggleSwitch'), txt = document.getElementById('aiToggleText');
+      if (t) t.checked = data.value;
+      if (txt) txt.textContent = data.value ? 'Đang bật' : 'Đang tắt';
+    });
+    loadSetting('/api/settings/ai-train-enabled', data => {
+      if (!data.success) return;
+      const t = document.getElementById('aiTrainToggleSwitch'), txt = document.getElementById('aiTrainToggleText');
+      if (t) t.checked = data.value;
+      if (txt) txt.textContent = data.value ? 'Đang bật' : 'Đang tắt';
+    });
+    loadSetting('/api/settings/page-access-token', data => {
+      if (!data.success) return;
+      const el = document.getElementById('pageTokenStatus');
+      if (el) { el.textContent = data.value?.trim() ? data.value : '(not set)'; el.style.color = data.value?.trim() ? '#28a745' : '#6c757d'; }
+    });
+    loadSetting('/api/settings/verify-token', data => {
+      if (!data.success) return;
+      const el = document.getElementById('verifyTokenStatus');
+      if (el) { el.textContent = data.value?.trim() ? data.value : '(not set)'; el.style.color = data.value?.trim() ? '#28a745' : '#6c757d'; }
+    });
+    loadSetting('/api/settings/ai-prompt', data => {
+      if (!data.success) return;
+      const el = document.getElementById('aiPromptStatus'), inp = document.getElementById('aiPromptInput');
+      if (el) { el.textContent = data.value?.trim() ? data.value.substring(0,50) + (data.value.length>50?'...':'') : 'Click để chỉnh sửa'; el.style.color = data.value?.trim() ? '#28a745' : '#6c757d'; }
+      if (inp) inp.value = data.value || '';
+    });
+    loadSetting('/api/settings/thresholds', data => {
+      if (!data.success) return;
+      const el = document.getElementById('thresholdStatus');
+      if (el) { el.textContent = `Cao: ${data.scoreThresholdHigh||0.4} | Thấp: ${data.scoreThresholdLow||0.3}`; el.style.color = '#28a745'; }
+      const hi = document.getElementById('scoreThresholdHighInput'), lo = document.getElementById('scoreThresholdLowInput');
+      if (hi) hi.value = data.scoreThresholdHigh || 0.4;
+      if (lo) lo.value = data.scoreThresholdLow || 0.3;
+    });
+  }
+
+  function saveGeminiApiKey() {
+    const input = document.getElementById('geminiApiKeyInput'); if (!input) return;
+    const val = input.value; if (!val.trim()) return alert('Nhập GEMINI API KEY');
+    fetch('/api/settings/gemini-api-key', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({value:val}) })
+      .then(r=>r.json()).then(d => {
+        if (d.success) {
+          const el = document.getElementById('geminiApiKeyStatus');
+          if (el) { el.textContent = val; el.style.color = '#28a745'; }
+          input.value = '';
+          const f = document.getElementById('geminiApiKeyForm');
+          if (f) { const c = bootstrap.Collapse.getInstance(f); if (c) c.hide(); }
+          showToast('Đã lưu API Key!', 'success');
+        } else alert('Lỗi: ' + d.message);
+      }).catch(()=>alert('Lỗi kết nối'));
+  }
+
+  function savePageToken() {
+    const input = document.getElementById('pageTokenInput'); if (!input) return;
+    const val = input.value; if (!val.trim()) return alert('Nhập token');
+    fetch('/api/settings/page-access-token', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({value:val}) })
+      .then(r=>r.json()).then(d => {
+        if (d.success) {
+          const el = document.getElementById('pageTokenStatus');
+          if (el) { el.textContent = val; el.style.color = '#28a745'; }
+          input.value = '';
+          const f = document.getElementById('pageTokenForm');
+          if (f) { const c = bootstrap.Collapse.getInstance(f); if (c) c.hide(); }
+          showToast('Đã lưu Page Token!', 'success');
+        } else alert('Lỗi: ' + d.message);
+      }).catch(()=>alert('Lỗi kết nối'));
+  }
+
+  function saveVerifyToken() {
+    const input = document.getElementById('verifyTokenInput'); if (!input) return;
+    const val = input.value; if (!val.trim()) return alert('Nhập token');
+    fetch('/api/settings/verify-token', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({value:val}) })
+      .then(r=>r.json()).then(d => {
+        if (d.success) {
+          const el = document.getElementById('verifyTokenStatus');
+          if (el) { el.textContent = val; el.style.color = '#28a745'; }
+          input.value = '';
+          const f = document.getElementById('verifyTokenForm');
+          if (f) { const c = bootstrap.Collapse.getInstance(f); if (c) c.hide(); }
+          showToast('Đã lưu Verify Token!', 'success');
+        } else alert('Lỗi: ' + d.message);
+      }).catch(()=>alert('Lỗi kết nối'));
+  }
+
+  function saveAiPrompt() {
+    const input = document.getElementById('aiPromptInput'); if (!input) return;
+    const val = input.value; if (!val.trim()) return alert('Nhập prompt');
+    fetch('/api/settings/ai-prompt', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({value:val}) })
+      .then(r=>r.json()).then(d => {
+        if (d.success) {
+          const el = document.getElementById('aiPromptStatus');
+          if (el) { el.textContent = val.substring(0,50)+(val.length>50?'...':''); el.style.color = '#28a745'; }
+          const f = document.getElementById('aiPromptForm');
+          if (f) { const c = bootstrap.Collapse.getInstance(f); if (c) c.hide(); }
+          showToast('Đã lưu AI Prompt!', 'success');
+        } else alert('Lỗi: ' + d.message);
+      }).catch(()=>alert('Lỗi kết nối'));
+  }
+
+  function saveThresholds() {
+    const hi = parseFloat(document.getElementById('scoreThresholdHighInput')?.value);
+    const lo = parseFloat(document.getElementById('scoreThresholdLowInput')?.value);
+    if (isNaN(hi)||isNaN(lo)) return alert('Nhập giá trị số');
+    if (hi<0||hi>1||lo<0||lo>1) return alert('Giá trị 0-1');
+    if (lo>=hi) return alert('Ngưỡng thấp < ngưỡng cao');
+    fetch('/api/settings/thresholds', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({scoreThresholdHigh:hi,scoreThresholdLow:lo}) })
+      .then(r=>r.json()).then(d => {
+        if (d.success) {
+          const el = document.getElementById('thresholdStatus');
+          if (el) { el.textContent = `Cao: ${hi} | Thấp: ${lo}`; el.style.color = '#28a745'; }
+          const f = document.getElementById('thresholdForm');
+          if (f) { const c = bootstrap.Collapse.getInstance(f); if (c) c.hide(); }
+          showToast('Đã lưu thresholds!', 'success');
+        } else alert('Lỗi: ' + (d.error||d.message));
+      }).catch(()=>alert('Lỗi kết nối'));
+  }
+
+  function resetDefaultPrompt() {
+    const defaultPrompt = `Bạn tên là Chatbot tin học, gọi bạn xưng tớ, là trợ lý thân thiện chuyên trả lời các câu hỏi về tin học dựa trên thông tin từ database.
+
+TRƯỚC KHI TRẢ LỜI, hãy phân tích câu hỏi của người dùng và xác định loại câu hỏi:
+
+1. CÂU CHÀO/XÃ GIAO: "xin chào", "hello", "hi", "chào bạn", "tạm biệt", "bye", "cảm ơn", "thank you"
+2. CÂU HỎI VỀ TIN HỌC: các câu hỏi về lập trình, phần mềm, công nghệ, máy tính, Excel, Word, PowerPoint, v.v.
+3. CÂU HỎI KHÁC: các câu hỏi không liên quan đến tin học
+
+THÔNG TIN TỪ DATABASE: {{answerContext}}
+
+CÂU HỎI CỦA NGƯỜI DÙNG: "{{originalQuestion}}"
+
+QUY TẮC TRẢ LỜI:
+
+**Nếu là CÂU CHÀO/XÃ GIAO:**
+- Trả lời thân thiện, ngắn gọn
+
+**Nếu là CÂU HỎI VỀ TIN HỌC:**
+- Kiểm tra thông tin trong database trước
+- Nếu có: trả lời chi tiết, chính xác
+- Nếu không: nói chưa có thông tin
+
+**Nếu là CÂU HỎI KHÁC:**
+- Nhẹ nhàng chuyển hướng về tin học
+
+**NGUYÊN TẮC:**
+- Luôn thân thiện, vui vẻ
+- Chỉ trả lời về tin học
+- Sử dụng "tớ" để xưng hô`;
+    const input = document.getElementById('aiPromptInput');
+    if (input) input.value = defaultPrompt;
+  }
+
+  function testGeminiApi() {
+    const el = document.getElementById('geminiStatus'); if (!el) return;
+    el.textContent = 'Đang kiểm tra...'; el.style.color = '#17a2b8';
+    fetch('/api/test/gemini').then(r=>r.json()).then(d => {
+      el.textContent = d.success ? '✅ Hoạt động tốt' : '❌ ' + d.message;
+      el.style.color = d.success ? '#28a745' : '#dc3545';
+    }).catch(()=>{ el.textContent = '❌ Lỗi kết nối'; el.style.color = '#dc3545'; });
+  }
+  function testPageToken() {
+    const el = document.getElementById('pageTokenConnectionStatus'); if (!el) return;
+    el.textContent = 'Đang kiểm tra...'; el.style.color = '#17a2b8';
+    fetch('/api/test/page-token').then(r=>r.json()).then(d => {
+      el.textContent = d.success ? '✅ Kết nối OK' : '❌ ' + d.message;
+      el.style.color = d.success ? '#28a745' : '#dc3545';
+    }).catch(()=>{ el.textContent = '❌ Lỗi'; el.style.color = '#dc3545'; });
+  }
+  function testVerifyToken() {
+    const el = document.getElementById('verifyTokenConnectionStatus'); if (!el) return;
+    el.textContent = 'Đang kiểm tra...'; el.style.color = '#17a2b8';
+    fetch('/api/test/verify-token').then(r=>r.json()).then(d => {
+      el.textContent = d.success ? '✅ Hợp lệ' : '❌ ' + d.message;
+      el.style.color = d.success ? '#28a745' : '#dc3545';
+    }).catch(()=>{ el.textContent = '❌ Lỗi'; el.style.color = '#dc3545'; });
+  }
+
+  function toggleAI() {
+    const t = document.getElementById('aiToggleSwitch'), txt = document.getElementById('aiToggleText');
+    if (!t||!txt) return;
+    const on = t.checked;
+    fetch('/api/settings/ai-enabled', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({value:on}) })
+      .then(r=>r.json()).then(d => {
+        if (d.success) { txt.textContent = on ? 'Đang bật' : 'Đang tắt'; updateAIStatusDisplay(on); showToast(on ? 'AI đã bật' : 'AI đã tắt', 'info'); }
+        else { t.checked = !on; txt.textContent = !on ? 'Đang bật' : 'Đang tắt'; }
+      }).catch(()=>{ t.checked = !on; txt.textContent = !on ? 'Đang bật' : 'Đang tắt'; });
+  }
+  function toggleAITrain() {
+    const t = document.getElementById('aiTrainToggleSwitch'), txt = document.getElementById('aiTrainToggleText');
+    if (!t||!txt) return;
+    const on = t.checked;
+    fetch('/api/settings/ai-train-enabled', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({value:on}) })
+      .then(r=>r.json()).then(d => {
+        if (d.success) { txt.textContent = on ? 'Đang bật' : 'Đang tắt'; updateAITrainStatusDisplay(on); showToast(on ? 'Train AI đã bật' : 'Train AI đã tắt', 'info'); }
+        else { t.checked = !on; txt.textContent = !on ? 'Đang bật' : 'Đang tắt'; }
+      }).catch(()=>{ t.checked = !on; txt.textContent = !on ? 'Đang bật' : 'Đang tắt'; });
+  }
+
+  function toggleEditForm(formId) {
+    const el = document.getElementById(formId);
+    if (!el) return;
+    const c = bootstrap.Collapse.getInstance(el);
+    if (c) c.toggle(); else new bootstrap.Collapse(el).toggle();
+  }
+
+  function loadAvailableModels() {
+    const list = document.getElementById('modelsList'), btn = document.getElementById('loadModelsBtn');
+    if (!list||!btn) return;
+    btn.textContent = 'Đang tải...'; btn.disabled = true;
+    fetch('/api/models/available').then(r=>r.json()).then(data => {
+      if (data.success && data.models?.length > 0) {
+        list.innerHTML = '';
+        data.models.forEach(m => {
+          const item = document.createElement('div'); item.className = 'model-item';
+          item.innerHTML = `<span class="model-name">${m}</span><span class="model-status">Available</span>`;
+          item.addEventListener('click', () => selectModel(m));
+          list.appendChild(item);
+        });
+      } else { list.innerHTML = '<div class="text-danger small">❌ ' + (data.error || 'Không thể tải') + '</div>'; }
+    }).catch(()=>{ list.innerHTML = '<div class="text-danger small">Lỗi kết nối</div>'; })
+    .finally(()=>{ btn.textContent = 'Tải danh sách'; btn.disabled = false; });
+  }
+
+  function selectModel(modelName) {
+    document.querySelectorAll('.model-item').forEach(i => i.classList.remove('selected'));
+    if (event?.target) event.target.closest('.model-item')?.classList.add('selected');
+    fetch('/api/settings/current-model', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({model:modelName}) })
+      .then(r=>r.json()).then(d => {
+        if (d.success) {
+          const el = document.getElementById('currentModel');
+          if (el) { el.textContent = modelName; el.style.color = '#28a745'; }
+          toggleEditForm('modelSelectForm');
+          showToast('Model: ' + modelName, 'success');
+        } else alert('Lỗi: ' + d.message);
+      }).catch(()=>alert('Lỗi kết nối'));
+  }
+
+  function testGeminiApiForModels() {
+    const btn = document.getElementById('testApiBtn'); if (!btn) return;
+    btn.textContent = 'Test...'; btn.disabled = true;
+    fetch('/api/test/gemini').then(r=>r.json()).then(d => {
+      if (d.success) { const wm = d.probe?.filter(p=>p.ok)||[]; alert('✅ API OK!\nWorking: ' + wm.map(m=>m.model).join(', ')); }
+      else alert('❌ ' + d.error);
+    }).catch(e=>alert('❌ ' + e.message)).finally(()=>{ btn.textContent = 'Test API'; btn.disabled = false; });
+  }
+  function reloadApiKey() {
+    const btn = document.getElementById('reloadApiBtn'); if (!btn) return;
+    btn.textContent = 'Reload...'; btn.disabled = true;
+    fetch('/api/settings/gemini-api-key').then(r=>r.json()).then(d => {
+      if (d.success && d.value) {
+        fetch('/api/settings/gemini-api-key', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({value:d.value}) })
+          .then(r=>r.json()).then(r => { alert(r.success ? '✅ Reload OK!' : '❌ ' + r.error); });
+      } else alert('❌ Không tìm thấy API Key');
+    }).catch(e=>alert('❌ ' + e.message)).finally(()=>{ btn.textContent = 'Reload Key'; btn.disabled = false; });
+  }
+  function forceSwitchToFlash() {
+    if (!confirm('Chuyển sang gemini-2.0-flash?')) return;
+    const cur = document.getElementById('currentModel')?.textContent;
+    fetch('/api/models/force-switch', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({fromModel:cur,toModel:'models/gemini-2.0-flash'}) })
+      .then(r=>r.json()).then(d => {
+        if (d.success) {
+          const el = document.getElementById('currentModel');
+          if (el) { el.textContent = 'models/gemini-2.0-flash'; el.style.color = '#28a745'; }
+          toggleEditForm('modelSelectForm');
+          showToast('Đã chuyển sang gemini-2.0-flash', 'success');
+        } else alert('❌ ' + d.error);
+      }).catch(e=>alert('❌ ' + e.message));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // QNA - TOGGLE EDIT MODE
+  // ═══════════════════════════════════════════════════════════════
+  function toggleEditMode(questionId) {
+    const view = document.getElementById('view-mode-' + questionId);
+    const edit = document.getElementById('edit-mode-' + questionId);
+    if (!view || !edit) return;
+    if (view.style.display === 'none') {
+      view.style.display = 'block'; edit.style.display = 'none';
+    } else {
+      view.style.display = 'none'; edit.style.display = 'block';
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // PENDING - TOGGLE EDIT MODE
+  // ═══════════════════════════════════════════════════════════════
+  window.togglePendingEditMode = function(questionId) {
+    const view = document.getElementById('pending-view-mode-' + questionId);
+    const edit = document.getElementById('pending-edit-mode-' + questionId);
+    if (!view || !edit) return;
+    if (view.style.display === 'none') {
+      view.style.display = 'block'; edit.style.display = 'none';
+    } else {
+      view.style.display = 'none'; edit.style.display = 'block';
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  // ADD / REMOVE ANSWERS
+  // ═══════════════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', function() {
+    // QNA add answer
+    document.querySelectorAll('[id^="add-answer-"]').forEach(button => {
+      button.addEventListener('click', function() {
+        const qid = this.id.split('-')[2];
+        const container = document.getElementById('answers-container-' + qid);
+        if (!container) return;
+        const count = container.querySelectorAll('.answer-item').length + 1;
+        const item = document.createElement('div');
+        item.className = 'answer-item mb-2';
+        item.innerHTML = `<div class="d-flex align-items-start gap-2"><div class="flex-grow-1"><label class="form-label small text-muted">Trả lời ${count}:</label><textarea name="answers[]" class="form-control auto-expand" rows="2" placeholder="Nhập câu trả lời..."></textarea></div><button type="button" class="btn btn-outline-danger btn-sm ms-1 remove-answer"><i class="fa fa-times"></i></button></div>`;
+        container.appendChild(item);
+        item.querySelector('textarea').focus();
+        item.querySelector('.remove-answer').addEventListener('click', () => { item.remove(); updateLabels(container); });
+      });
+    });
+
+    // Pending add answer
+    document.querySelectorAll('[id^="pending-add-answer-"]').forEach(button => {
+      button.addEventListener('click', function() {
+        const qid = this.id.split('-')[3];
+        const container = document.getElementById('pending-answers-container-' + qid);
+        if (!container) return;
+        const count = container.querySelectorAll('.answer-item').length + 1;
+        const item = document.createElement('div');
+        item.className = 'answer-item mb-2';
+        item.innerHTML = `<div class="d-flex align-items-start gap-2"><div class="flex-grow-1"><label class="form-label small text-muted">Trả lời ${count}:</label><textarea name="answers[]" class="form-control auto-expand" rows="2" placeholder="Nhập câu trả lời..."></textarea></div><button type="button" class="btn btn-outline-danger btn-sm ms-1 remove-answer"><i class="fa fa-times"></i></button></div>`;
+        container.appendChild(item);
+        item.querySelector('textarea').focus();
+        item.querySelector('.remove-answer').addEventListener('click', () => { item.remove(); updateLabels(container); });
+      });
+    });
+
+    // Remove answer (existing)
+    document.querySelectorAll('.remove-answer').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const item = this.closest('.answer-item');
+        const container = item?.closest('.answers-container');
+        if (container && container.querySelectorAll('.answer-item').length <= 1) return alert('Cần ít nhất 1 câu trả lời!');
+        if (item) item.remove();
+        if (container) updateLabels(container);
+      });
+    });
+
+    function updateLabels(container) {
+      container.querySelectorAll('.answer-item').forEach((item, i) => {
+        const label = item.querySelector('label');
+        if (label) label.textContent = `Trả lời ${i + 1}:`;
+      });
+    }
+
+    // Form validations
+    document.querySelectorAll('.edit-form').forEach(form => {
+      form.addEventListener('submit', function(e) {
+        const answers = this.querySelectorAll('textarea[name="answers[]"]');
+        let hasValid = false;
+        answers.forEach(t => { if (t.value.trim()) hasValid = true; });
+        if (!hasValid) { e.preventDefault(); return alert('Cần ít nhất 1 câu trả lời!'); }
+        if (!confirm('Lưu thay đổi?')) { e.preventDefault(); }
+      });
+    });
+
+    // Auto-expand textareas (QNA section only)
+    document.querySelectorAll('#section-qna .auto-expand').forEach(ta => {
+      const expand = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
+      ta.addEventListener('input', expand);
+      expand();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // PENDING QUESTIONS (dynamic AJAX loading)
+  // ═══════════════════════════════════════════════════════════════
+  let pendingCurrentPage = 1;
+  async function loadPendingQuestions(page) {
+    if (typeof page === 'number') pendingCurrentPage = page;
+    const container = document.getElementById('pendingContainer');
+    const toolbar = document.getElementById('pendingToolbar');
+    const pageInfo = document.getElementById('pendingPageInfo');
+    const pagination = document.getElementById('pendingPagination');
+    if (!container) return;
+    container.style.opacity = '0.5';
+    try {
+      const res = await fetch('/api/pending/list?page=' + pendingCurrentPage + '&limit=6');
+      const data = await res.json();
+      if (!data.success) return;
+      // Update sidebar badge
+      const pendingBadge = document.querySelector('#pending-tab .nav-badge');
+      if (pendingBadge) {
+        pendingBadge.textContent = data.total;
+        if (data.total > 0) { pendingBadge.classList.add('badge-danger','pulse-badge'); }
+        else { pendingBadge.classList.remove('badge-danger','pulse-badge'); }
+      }
+      if (data.questions.length === 0) {
+        toolbar.style.display = 'none';
+        container.innerHTML = '<div class="text-center py-5" style="color: var(--text-muted);"><i class="fa fa-check-circle fa-3x text-success mb-3" style="display:block;"></i><h5>Không có câu hỏi chờ</h5><p class="small">Tất cả câu hỏi đã được xử lý!</p></div>';
+        pagination.innerHTML = '';
+        return;
+      }
+      toolbar.style.display = '';
+      if (pageInfo) pageInfo.innerHTML = 'Trang ' + data.page + '/' + data.totalPages + ' · <strong>' + data.total + '</strong> câu hỏi chờ';
+      // Render cards
+      container.innerHTML = data.questions.map((pq, pIdx) => {
+        const num = pIdx + 1 + (data.page - 1) * 6;
+        const dateStr = new Date(pq.createdAt).toLocaleString('vi-VN');
+        const safeQ = pq.question.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        return '<div class="p-card" data-id="' + pq._id + '">' +
+          '<div class="p-header">' +
+            '<span class="p-num"><i class="fa fa-hourglass-half me-1"></i> #' + num + '</span>' +
+            '<div class="btn-group btn-group-sm">' +
+              '<button class="btn btn-outline-success btn-sm" onclick="togglePendingEditMode(\'' + pq._id + '\')"><i class="fa fa-reply"></i> Trả lời</button>' +
+              '<button class="btn btn-outline-danger btn-sm btn-delete-pending" data-id="' + pq._id + '"><i class="fa fa-trash"></i></button>' +
+            '</div>' +
+          '</div>' +
+          '<div id="pending-view-mode-' + pq._id + '">' +
+            '<div class="p-body"><div class="p-question">' + safeQ + '</div><div class="p-meta"><i class="fa fa-calendar"></i> ' + dateStr + '</div></div>' +
+          '</div>' +
+          '<div id="pending-edit-mode-' + pq._id + '" style="display:none;">' +
+            '<div class="p-edit" style="display:block;">' +
+              '<form action="/admin/add?tab=pending" method="POST" class="pending-edit-form">' +
+                '<div class="mb-2"><label class="form-label text-primary">Câu hỏi:</label><textarea name="question" class="form-control auto-expand" rows="2" required>' + safeQ + '</textarea></div>' +
+                '<div class="mb-2"><label class="form-label text-success">Câu trả lời:</label>' +
+                  '<div id="pending-answers-container-' + pq._id + '" class="answers-container"><div class="answer-item mb-2"><div class="d-flex align-items-start gap-2"><div class="flex-grow-1"><label class="form-label small text-muted">Trả lời 1:</label><textarea name="answers[]" class="form-control auto-expand" rows="2" placeholder="Nhập câu trả lời..." required></textarea></div><button type="button" class="btn btn-outline-danger btn-sm ms-1 remove-answer"><i class="fa fa-times"></i></button></div></div></div>' +
+                  '<button type="button" class="btn btn-outline-primary btn-sm" id="pending-add-answer-' + pq._id + '"><i class="fa fa-plus"></i> Thêm trả lời</button>' +
+                '</div>' +
+                '<div class="d-flex gap-2 justify-content-end mt-2">' +
+                  '<button type="button" class="btn btn-secondary btn-sm" onclick="togglePendingEditMode(\'' + pq._id + '\')"><i class="fa fa-times"></i> Hủy</button>' +
+                  '<button type="submit" class="btn btn-success btn-sm"><i class="fa fa-paper-plane"></i> Gửi</button>' +
+                '</div>' +
+              '</form>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      // Render pagination
+      if (data.totalPages > 1) {
+        let pHtml = '<nav><ul class="pagination justify-content-center">';
+        pHtml += '<li class="page-item ' + (data.page <= 1 ? 'disabled' : '') + '"><a class="page-link" href="#" onclick="loadPendingQuestions(' + (data.page - 1) + ');return false;">&laquo;</a></li>';
+        const sp = Math.max(1, data.page - 2), ep = Math.min(data.totalPages, data.page + 2);
+        if (sp > 1) { pHtml += '<li class="page-item"><a class="page-link" href="#" onclick="loadPendingQuestions(1);return false;">1</a></li>'; if(sp>2) pHtml+='<li class="page-item disabled"><span class="page-link">...</span></li>'; }
+        for (let i = sp; i <= ep; i++) pHtml += '<li class="page-item ' + (data.page===i?'active':'') + '"><a class="page-link" href="#" onclick="loadPendingQuestions(' + i + ');return false;">' + i + '</a></li>';
+        if (ep < data.totalPages) { if(ep<data.totalPages-1) pHtml+='<li class="page-item disabled"><span class="page-link">...</span></li>'; pHtml += '<li class="page-item"><a class="page-link" href="#" onclick="loadPendingQuestions(' + data.totalPages + ');return false;">' + data.totalPages + '</a></li>'; }
+        pHtml += '<li class="page-item ' + (data.page >= data.totalPages ? 'disabled' : '') + '"><a class="page-link" href="#" onclick="loadPendingQuestions(' + (data.page + 1) + ');return false;">&raquo;</a></li>';
+        pHtml += '</ul></nav>';
+        pagination.innerHTML = pHtml;
+      } else { pagination.innerHTML = ''; }
+      // Rebind dynamic event listeners
+      _bindPendingEvents();
+    } catch(e) { console.error('loadPendingQuestions error', e); }
+    finally { container.style.opacity = '1'; }
+  }
+  function _bindPendingEvents() {
+    // Delete pending AJAX
+    document.querySelectorAll('#pendingContainer .btn-delete-pending').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (!confirm('Xóa câu hỏi này?')) return;
+        const id = this.dataset.id;
+        fetch('/admin/delete-pending/' + id + '?tab=pending', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+          .then(r => { if (r.ok) { showToast('Đã xóa câu hỏi', 'success'); loadPendingQuestions(); } else showToast('Xóa thất bại!', 'danger'); })
+          .catch(() => showToast('Lỗi kết nối!', 'danger'));
+      });
+    });
+    // Add answer buttons
+    document.querySelectorAll('#pendingContainer [id^="pending-add-answer-"]').forEach(button => {
+      button.addEventListener('click', function() {
+        const qid = this.id.replace('pending-add-answer-', '');
+        const container = document.getElementById('pending-answers-container-' + qid);
+        if (!container) return;
+        const count = container.querySelectorAll('.answer-item').length + 1;
+        const item = document.createElement('div'); item.className = 'answer-item mb-2';
+        item.innerHTML = '<div class="d-flex align-items-start gap-2"><div class="flex-grow-1"><label class="form-label small text-muted">Trả lời ' + count + ':</label><textarea name="answers[]" class="form-control auto-expand" rows="2" placeholder="Nhập câu trả lời..."></textarea></div><button type="button" class="btn btn-outline-danger btn-sm ms-1 remove-answer"><i class="fa fa-times"></i></button></div>';
+        container.appendChild(item);
+        item.querySelector('textarea').focus();
+        item.querySelector('.remove-answer').addEventListener('click', () => item.remove());
+      });
+    });
+    // Remove answer buttons
+    document.querySelectorAll('#pendingContainer .remove-answer').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const item = this.closest('.answer-item');
+        const container = item?.closest('.answers-container');
+        if (container && container.querySelectorAll('.answer-item').length <= 1) return alert('Cần ít nhất 1 câu trả lời!');
+        if (item) item.remove();
+      });
+    });
+    // Form submit validation
+    document.querySelectorAll('#pendingContainer .pending-edit-form').forEach(form => {
+      form.addEventListener('submit', function(e) {
+        const answers = this.querySelectorAll('textarea[name="answers[]"]');
+        let hasValid = false;
+        answers.forEach(t => { if (t.value.trim()) hasValid = true; });
+        if (!hasValid) { e.preventDefault(); return alert('Cần ít nhất 1 câu trả lời!'); }
+        if (!confirm('Gửi trả lời? Câu hỏi sẽ chuyển sang "Đã có trả lời".')) { e.preventDefault(); }
+      });
+    });
+    // Auto-expand textareas
+    document.querySelectorAll('#pendingContainer .auto-expand').forEach(ta => {
+      const expand = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
+      ta.addEventListener('input', expand); expand();
+    });
+  }
+  // Load pending on initial page if pending tab is active
+  if (document.getElementById('section-pending') && document.getElementById('section-pending').classList.contains('active')) loadPendingQuestions();
+
+  // ═══════════════════════════════════════════════════════════════
+  // CHAT PANEL (persistent across tab switches)
+  // ═══════════════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', function() {
+    const chatFab = document.getElementById('chatFab');
+    const chatPanel = document.getElementById('chatPanel');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendMessage');
+    const closeBtn = document.getElementById('chatCloseBtn');
+    const clearBtn = document.getElementById('chatClearBtn');
+    let isOpen = false;
+    const CHAT_STORAGE_KEY = 'chatbot_admin_chat_history';
+
+    // ── Restore chat history from sessionStorage ──
+    function loadChatHistory() {
+      try {
+        const saved = sessionStorage.getItem(CHAT_STORAGE_KEY);
+        if (saved) {
+          const msgs = JSON.parse(saved);
+          if (msgs.length > 0) {
+            msgs.forEach(m => renderMessage(m.text, m.sender, m.time, false));
+            return;
+          }
+        }
+      } catch(e) {}
+      // Default welcome message
+      renderMessage('Xin chào! Gửi tin nhắn để test chatbot.', 'bot', new Date().toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'}), false);
+    }
+    function saveChatHistory() {
+      try {
+        const msgs = [];
+        chatMessages.querySelectorAll('.message').forEach(el => {
+          const sender = el.classList.contains('user-message') ? 'user' : 'bot';
+          const textEl = el.querySelector('.message-content span, .message-content');
+          const timeEl = el.querySelector('.message-time');
+          if (textEl) msgs.push({ text: textEl.textContent, sender, time: timeEl?.textContent || '' });
+        });
+        sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(msgs.slice(-50)));
+      } catch(e) {}
+    }
+
+    function renderMessage(text, sender, time, save) {
+      const div = document.createElement('div');
+      div.className = 'message ' + sender + '-message';
+      if (sender === 'bot') {
+        div.innerHTML = `<div class="message-content"><span class="bot-icon"><i class="fa fa-robot"></i></span><span>${text}</span></div><div class="message-time">${time}</div>`;
+      } else {
+        div.innerHTML = `<div class="message-content"><span>${text}</span></div><div class="message-time">${time}</div>`;
+      }
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      if (save !== false) saveChatHistory();
+    }
+
+    loadChatHistory();
+
+    // ── Toggle panel ──
+    function togglePanel() {
+      isOpen = !isOpen;
+      chatPanel.classList.toggle('open', isOpen);
+      chatFab.classList.toggle('active', isOpen);
+      chatFab.querySelector('i').className = isOpen ? 'fa fa-times' : 'fa fa-comments';
+      if (isOpen) setTimeout(() => chatInput.focus(), 300);
+    }
+    chatFab.addEventListener('click', togglePanel);
+    closeBtn.addEventListener('click', togglePanel);
+
+    // ── Clear history ──
+    clearBtn.addEventListener('click', function() {
+      if (!confirm('Xóa lịch sử chat?')) return;
+      chatMessages.innerHTML = '';
+      sessionStorage.removeItem(CHAT_STORAGE_KEY);
+      renderMessage('Chat đã được xóa. Gửi tin nhắn mới để test!', 'bot', new Date().toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'}), true);
+    });
+
+    // ── Send message ──
+    function getConversationHistory() {
+      const msgs = [];
+      chatMessages.querySelectorAll('.message').forEach(el => {
+        if (el.classList.contains('typing-message')) return;
+        const isUser = el.classList.contains('user-message');
+        const textEl = el.querySelector('.message-content span:last-child') || el.querySelector('.message-content span');
+        if (textEl && textEl.textContent.trim()) {
+          msgs.push({ role: isUser ? 'user' : 'bot', text: textEl.textContent.trim() });
+        }
+      });
+      return msgs.slice(-10); // Last 10 messages for context
+    }
+
+    function sendMessage() {
+      const msg = chatInput.value.trim(); if (!msg) return;
+      const time = new Date().toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'});
+      renderMessage(msg, 'user', time);
+      chatInput.value = '';
+      sendBtn.disabled = true;
+      // Collect history BEFORE adding typing indicator
+      const history = getConversationHistory();
+      // Show typing
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'message bot-message typing-message';
+      typingDiv.innerHTML = '<div class="typing-indicator"><div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
+      chatMessages.appendChild(typingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      fetch('/admin/test-message', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:msg, useAI:true, history:history}) })
+        .then(r=>r.json()).then(d => {
+          const t = chatMessages.querySelector('.typing-message'); if (t) t.remove();
+          const rTime = new Date().toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'});
+          const replyText = d.success && d.reply ? d.reply : 'Lỗi xử lý';
+          renderMessage(replyText, 'bot', rTime);
+          if (typeof _saveRespLog === 'function') _saveRespLog(msg, replyText, d.success ? 'ok' : 'error');
+        })
+        .catch(()=>{
+          const t = chatMessages.querySelector('.typing-message'); if (t) t.remove();
+          renderMessage('Không thể kết nối server', 'bot', new Date().toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'}));
+          if (typeof _saveRespLog === 'function') _saveRespLog(msg, 'Không thể kết nối server', 'error');
+        })
+        .finally(()=>{ sendBtn.disabled = false; chatInput.focus(); });
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // DEFAULT RESPONSES
+  // ═══════════════════════════════════════════════════════════════
+  let defaultResponses = [];
+
+  async function loadDefaultResponses() {
+    try {
+      const res = await fetch('/api/default-responses');
+      const data = await res.json();
+      if (data.success) { defaultResponses = data.responses; renderDefaultResponses(); }
+    } catch(e) { console.error('Error loading default responses', e); }
+  }
+
+  function renderDefaultResponses() {
+    const container = document.getElementById('defaultResponsesList');
+    if (!container) return;
+    if (defaultResponses.length === 0) {
+      container.innerHTML = '<div class="text-center py-4 w-100" style="color:var(--text-muted);"><i class="fa fa-inbox fa-2x mb-2 d-block"></i>Chưa có câu trả lời mặc định</div>';
+      return;
+    }
+    container.innerHTML = defaultResponses.map(r => `
+      <div class="dr-card">
+        <div class="dr-header"><span class="dr-title">${escapeHtml(r.name)}</span><span class="dr-priority">Ưu tiên ${r.priority}</span></div>
+        <div class="dr-body">
+          <div class="dr-message">${escapeHtml(r.message)}</div>
+          <div class="dr-footer">
+            <span class="dr-status ${r.isActive?'active':'inactive'}"><i class="fa fa-${r.isActive?'check-circle':'times-circle'}"></i> ${r.isActive?'Hoạt động':'Tạm dừng'}</span>
+            <div class="d-flex gap-1">
+              <button class="btn btn-outline-primary btn-sm" onclick="editDefaultResponse('${r._id}')"><i class="fa fa-edit"></i></button>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteDefaultResponse('${r._id}')"><i class="fa fa-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function showAddDefaultResponseModal() {
+    document.getElementById('defaultResponseModalLabel').textContent = 'Thêm câu trả lời mặc định';
+    document.getElementById('defaultResponseForm').reset();
+    document.getElementById('defaultResponseId').value = '';
+    document.getElementById('defaultResponseActive').checked = true;
+    document.getElementById('defaultResponsePriority').value = '1';
+    new bootstrap.Modal(document.getElementById('defaultResponseModal')).show();
+  }
+  function editDefaultResponse(id) {
+    const r = defaultResponses.find(x => x._id === id); if (!r) return;
+    document.getElementById('defaultResponseModalLabel').textContent = 'Chỉnh sửa';
+    document.getElementById('defaultResponseId').value = r._id;
+    document.getElementById('defaultResponseName').value = r.name;
+    document.getElementById('defaultResponseMessage').value = r.message;
+    document.getElementById('defaultResponsePriority').value = r.priority;
+    document.getElementById('defaultResponseActive').checked = r.isActive;
+    new bootstrap.Modal(document.getElementById('defaultResponseModal')).show();
+  }
+  async function saveDefaultResponse() {
+    const form = document.getElementById('defaultResponseForm');
+    const fd = new FormData(form);
+    const data = { name: fd.get('name'), message: fd.get('message'), priority: parseInt(fd.get('priority')), isActive: fd.get('isActive') === 'on' };
+    const id = fd.get('id'); const isEdit = id && id.trim();
+    try {
+      const res = await fetch(isEdit ? `/api/default-responses/${id}` : '/api/default-responses', {
+        method: isEdit ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (result.success) { bootstrap.Modal.getInstance(document.getElementById('defaultResponseModal')).hide(); loadDefaultResponses(); showToast(result.message, 'success'); }
+      else showToast('Lỗi: ' + result.error, 'danger');
+    } catch(e) { showToast('Lỗi kết nối', 'danger'); }
+  }
+  async function deleteDefaultResponse(id) {
+    if (!confirm('Xóa câu trả lời mặc định này?')) return;
+    try {
+      const res = await fetch(`/api/default-responses/${id}`, { method:'DELETE' });
+      const result = await res.json();
+      if (result.success) { loadDefaultResponses(); showToast(result.message, 'success'); }
+      else showToast('Lỗi: ' + result.error, 'danger');
+    } catch(e) { showToast('Lỗi kết nối', 'danger'); }
+  }
+
+  function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+
+  function downloadTemplate() { window.open('/api/download/excel-template', '_blank'); }
+
+  // ═══════════════════════════════════════════════════════════════
+  // LAYOUT SWITCHER (QNA)
+  // ═══════════════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('qnaContainer');
+    if (!container) return;
+    const savedLayout = localStorage.getItem('qnaLayout') || 'auto';
+
+    function applyLayout(layout) {
+      container.className = 'questions-grid' + (layout !== 'auto' ? ' grid-' + layout : '');
+      document.querySelectorAll('.layout-option').forEach(b => b.classList.remove('active'));
+      const active = document.querySelector('.layout-option[data-layout="' + layout + '"]');
+      if (active) active.classList.add('active');
+    }
+    applyLayout(savedLayout);
+
+    document.querySelectorAll('.layout-option').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const layout = this.dataset.layout;
+        localStorage.setItem('qnaLayout', layout);
+        applyLayout(layout);
+      });
+    });
+  });
+
+  // LAYOUT SWITCHER (Pending)
+  document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('pendingContainer');
+    if (!container) return;
+    const saved = localStorage.getItem('pendingLayout') || 'auto';
+
+    function apply(layout) {
+      container.className = 'pending-grid' + (layout !== 'auto' ? ' grid-' + layout : '');
+      document.querySelectorAll('.pending-layout-option').forEach(b => b.classList.remove('active'));
+      const a = document.querySelector('.pending-layout-option[data-layout="' + layout + '"]');
+      if (a) a.classList.add('active');
+    }
+    apply(saved);
+
+    document.querySelectorAll('.pending-layout-option').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const l = this.dataset.layout;
+        localStorage.setItem('pendingLayout', l);
+        apply(l);
+      });
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // REAL-TIME SEARCH & FILTER
+  // ═══════════════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', function() {
+    const sourceFilter = document.getElementById('sourceFilter');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const filterStatus = document.getElementById('filterStatus');
+    const filterStatusText = document.getElementById('filterStatusText');
+    const qnaContainer = document.getElementById('qnaContainer');
+    const qnaPagination = document.getElementById('qnaPagination');
+    const qnaPageInfo = document.getElementById('qnaPageInfo');
+    const loadingIndicator = document.getElementById('searchLoadingIndicator');
+    const clearBtn = document.getElementById('clearSearchBtn');
+
+    if (!sourceFilter || !searchInput || !qnaContainer) return;
+
+    let currentPage = parseInt(_ejsData.page) || 1;
+    let currentPageSize = parseInt(_ejsData.pageSize) || 6;
+
+    const sourceBadgeConfig = {
+      'admin': { icon: '👤', text: 'Admin', cls: 'src-admin' },
+      'ai_generated': { icon: '🤖', text: 'AI tạo', cls: 'src-ai_generated' },
+      'ai_improved': { icon: '💡', text: 'AI cải thiện', cls: 'src-ai_improved' },
+      'import': { icon: '📊', text: 'Import', cls: 'src-import' },
+      'database': { icon: '💾', text: 'Database', cls: 'src-database' }
+    };
+
+    function escapeHtmlSafe(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+
+    function highlightText(text, term) {
+      if (!term) return escapeHtmlSafe(text);
+      const escaped = escapeHtmlSafe(text);
+      const eTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return escaped.replace(new RegExp('(' + eTerm + ')', 'gi'), '<mark class="bg-warning text-dark px-1 rounded">$1</mark>');
+    }
+
+    function renderQuestionCard(q, index, page, pageSize, searchTerm) {
+      const source = q.source || 'database';
+      const badge = sourceBadgeConfig[source] || sourceBadgeConfig['database'];
+      const num = index + 1 + (page - 1) * pageSize;
+      const qHtml = highlightText(q.question, searchTerm);
+      let answersViewHtml = '';
+      if (q.answers && q.answers.length > 0) {
+        q.answers.slice(0, 2).forEach(a => { answersViewHtml += `<div class="q-answer">${highlightText(a, searchTerm)}</div>`; });
+        if (q.answers.length > 2) answersViewHtml += `<div class="q-answer-more">+ ${q.answers.length - 2} khác</div>`;
+      } else {
+        answersViewHtml = '<div class="q-answer" style="border-left-color:var(--warning);"><i class="fa fa-exclamation-triangle text-warning me-1"></i> Chưa có trả lời</div>';
+      }
+      let editAnswersHtml = '';
+      if (q.answers && q.answers.length > 0) {
+        q.answers.forEach((a, i) => {
+          editAnswersHtml += `<div class="answer-item mb-2"><div class="d-flex align-items-start gap-2"><div class="flex-grow-1"><label class="form-label small text-muted">Trả lời ${i+1}:</label><textarea name="answers[]" class="form-control auto-expand" rows="2">${escapeHtmlSafe(a)}</textarea></div><button type="button" class="btn btn-outline-danger btn-sm ms-1 remove-answer"><i class="fa fa-times"></i></button></div></div>`;
+        });
+      } else {
+        editAnswersHtml = '<div class="answer-item mb-2"><div class="d-flex align-items-start gap-2"><div class="flex-grow-1"><label class="form-label small text-muted">Trả lời 1:</label><textarea name="answers[]" class="form-control auto-expand" rows="2" placeholder="Nhập câu trả lời..."></textarea></div><button type="button" class="btn btn-outline-danger btn-sm ms-1 remove-answer"><i class="fa fa-times"></i></button></div></div>';
+      }
+
+      return `
+      <div class="q-card" data-question-id="${q._id}" data-index="${index}" style="animation:fadeInUp 0.3s ease ${index*0.04}s both;">
+        <div class="q-header">
+          <span class="q-num">#${num}</span>
+          <span class="q-source ${badge.cls}">${badge.icon} ${badge.text}</span>
+        </div>
+        <div id="view-mode-${q._id}">
+          <div class="q-body">
+            <div class="q-question"><i class="fa fa-question-circle text-success me-1"></i> ${qHtml}</div>
+            ${answersViewHtml}
+          </div>
+          <div class="q-footer">
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleEditMode('${q._id}')"><i class="fa fa-edit"></i> Sửa</button>
+            <form action="/admin/delete/${q._id}?page=${page}&tab=qna" method="POST" class="d-inline">
+              <button class="btn btn-outline-danger btn-sm" type="submit" onclick="return confirm('Xóa?')"><i class="fa fa-trash"></i></button>
+            </form>
+          </div>
+        </div>
+        <div id="edit-mode-${q._id}" style="display:none;">
+          <div class="q-edit" style="display:block;">
+            <form action="/admin/edit/${q._id}?page=${page}&tab=qna" method="POST" class="edit-form">
+              <div class="mb-2"><label class="form-label text-success">Câu hỏi:</label><input type="text" name="question" class="form-control" value="${escapeHtmlSafe(q.question)}" required></div>
+              <div class="mb-2"><label class="form-label text-primary">Trả lời:</label><div id="answers-container-${q._id}" class="answers-container">${editAnswersHtml}</div>
+                <button type="button" class="btn btn-outline-primary btn-sm add-answer-btn" data-id="${q._id}"><i class="fa fa-plus"></i> Thêm</button>
+              </div>
+              <div class="d-flex gap-2 justify-content-end mt-2">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleEditMode('${q._id}')"><i class="fa fa-times"></i> Hủy</button>
+                <button type="submit" class="btn btn-success btn-sm"><i class="fa fa-save"></i> Lưu</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function renderPagination(page, totalPages) {
+      if (!qnaPagination) return;
+      if (totalPages <= 1) { qnaPagination.innerHTML = ''; return; }
+      let s = Math.max(1, page-2), e = Math.min(totalPages, page+2);
+      let h = '<nav><ul class="pagination justify-content-center">';
+      h += `<li class="page-item ${page===1?'disabled':''}"><a class="page-link" href="#" data-page="${page-1}">&laquo;</a></li>`;
+      if (s>1) { h += '<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>'; if(s>2) h += '<li class="page-item disabled"><span class="page-link">...</span></li>'; }
+      for (let i=s;i<=e;i++) h += `<li class="page-item ${page===i?'active':''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+      if (e<totalPages) { if(e<totalPages-1) h += '<li class="page-item disabled"><span class="page-link">...</span></li>'; h += `<li class="page-item"><a class="page-link" href="#" data-page="${totalPages}">${totalPages}</a></li>`; }
+      h += `<li class="page-item ${page===totalPages?'disabled':''}"><a class="page-link" href="#" data-page="${page+1}">&raquo;</a></li></ul></nav>`;
+      qnaPagination.innerHTML = h;
+      qnaPagination.querySelectorAll('a[data-page]').forEach(l => {
+        l.addEventListener('click', function(ev) { ev.preventDefault(); const p = parseInt(this.dataset.page); if (p>=1&&p<=totalPages) { currentPage=p; fetchQuestions(); } });
+      });
+    }
+
+    function updateSourceStats(stats) {
+      if (!stats) return;
+      const total = (stats.admin||0)+(stats.ai_generated||0)+(stats.ai_improved||0)+(stats.import||0)+(stats.database||0);
+      const el = id => document.getElementById(id);
+      if (el('statAdmin')) el('statAdmin').textContent = stats.admin||0;
+      if (el('statAdminPct')) el('statAdminPct').textContent = '👤 Admin tạo · '+(total>0?((stats.admin/total)*100).toFixed(1):'0.0')+'%';
+      if (el('statAI')) el('statAI').textContent = (stats.ai_generated||0)+(stats.ai_improved||0);
+      if (el('statAIDetail')) el('statAIDetail').innerHTML = `🤖 ${stats.ai_generated||0} tạo mới · 💡 ${stats.ai_improved||0} cải thiện`;
+      if (el('statOther')) el('statOther').textContent = (stats.import||0)+(stats.database||0);
+      if (el('statOtherDetail')) el('statOtherDetail').innerHTML = `📊 ${stats.import||0} Excel · 💾 ${stats.database||0} cũ`;
+    }
+
+    function updateFilterStatus() {
+      const hasF = sourceFilter.value !== 'all' || searchInput.value.trim();
+      if (hasF) {
+        let t = '';
+        if (sourceFilter.value !== 'all') t = sourceFilter.options[sourceFilter.selectedIndex].text;
+        if (searchInput.value.trim()) { if (t) t += ' · '; t += '"' + searchInput.value.trim() + '"'; }
+        filterStatusText.textContent = t;
+        filterStatus.classList.add('visible');
+      } else { filterStatus.classList.remove('visible'); }
+
+      // Show/hide clear button
+      if (clearBtn) clearBtn.style.display = searchInput.value ? 'block' : 'none';
+    }
+
+    let fetchCtrl = null;
+    async function fetchQuestions() {
+      if (fetchCtrl) fetchCtrl.abort();
+      fetchCtrl = new AbortController();
+      const source = sourceFilter.value;
+      const search = searchInput.value.trim();
+      if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+      qnaContainer.style.opacity = '0.5';
+      updateFilterStatus();
+      try {
+        const params = new URLSearchParams({ source, search, page: currentPage, limit: currentPageSize });
+        const res = await fetch('/api/questions/search?' + params, { signal: fetchCtrl.signal });
+        const data = await res.json();
+        if (!data.success) return;
+        if (qnaPageInfo) qnaPageInfo.innerHTML = `Trang ${data.page}/${data.totalPages||1} · Tổng <strong>${data.total}</strong> câu hỏi` + ((source!=='all'||search) ? ' <span class="filter-badge visible" style="display:inline-flex;">🔍 Đang lọc</span>' : '');
+        if (data.questions.length === 0) {
+          qnaContainer.innerHTML = '<div class="no-results"><i class="fa fa-search d-block"></i><h5>Không tìm thấy</h5><p>Thử thay đổi bộ lọc hoặc từ khóa</p></div>';
+        } else {
+          qnaContainer.innerHTML = data.questions.map((q, i) => renderQuestionCard(q, i, data.page, currentPageSize, search)).join('');
+          // Rebind dynamic add-answer buttons
+          qnaContainer.querySelectorAll('.add-answer-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const id = this.dataset.id;
+              const con = document.getElementById('answers-container-' + id); if (!con) return;
+              const cnt = con.querySelectorAll('.answer-item').length + 1;
+              const item = document.createElement('div'); item.className = 'answer-item mb-2';
+              item.innerHTML = `<div class="d-flex align-items-start gap-2"><div class="flex-grow-1"><label class="form-label small text-muted">Trả lời ${cnt}:</label><textarea name="answers[]" class="form-control auto-expand" rows="2" placeholder="Nhập câu trả lời..."></textarea></div><button type="button" class="btn btn-outline-danger btn-sm ms-1 remove-answer"><i class="fa fa-times"></i></button></div>`;
+              con.appendChild(item);
+              item.querySelector('.remove-answer').addEventListener('click', () => item.remove());
+            });
+          });
+          qnaContainer.querySelectorAll('.remove-answer').forEach(btn => {
+            btn.addEventListener('click', function() { const item = this.closest('.answer-item'); if (item) item.remove(); });
+          });
+        }
+        renderPagination(data.page, data.totalPages);
+        updateSourceStats(data.sourceStats);
+      } catch(e) { if (e.name === 'AbortError') return; }
+      finally { if (loadingIndicator) loadingIndicator.style.display = 'none'; qnaContainer.style.opacity = '1'; }
+    }
+
+    let searchTimeout;
+    sourceFilter.addEventListener('change', () => { currentPage = 1; fetchQuestions(); });
+    searchInput.addEventListener('input', () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(()=>{ currentPage=1; fetchQuestions(); }, 400); updateFilterStatus(); });
+    clearSearchBtn.addEventListener('click', () => { searchInput.value = ''; currentPage = 1; fetchQuestions(); });
+    searchInput.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(searchTimeout); currentPage=1; fetchQuestions(); } });
+
+    // Initial filter status
+    updateFilterStatus();
+
+    // Expose fetchQuestions to global scope for sidebar tab switching
+    window.fetchQuestions = fetchQuestions;
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // TOAST SYSTEM
+  // ═══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════
+  // NOTIFICATION SYSTEM (snackbar-style, bottom center)
+  // ═══════════════════════════════════════════════════════════════
+  const notifContainer = document.createElement('div');
+  notifContainer.className = 'notif-container';
+  document.body.appendChild(notifContainer);
+
+  const NOTIF_LOG_KEY = 'chatbot_admin_notif_log';
+  const RESP_LOG_KEY = 'chatbot_admin_resp_log';
+
+  function _saveNotifLog(message, type) {
+    try {
+      const logs = JSON.parse(sessionStorage.getItem(NOTIF_LOG_KEY) || '[]');
+      logs.unshift({ message, type, time: new Date().toISOString() });
+      sessionStorage.setItem(NOTIF_LOG_KEY, JSON.stringify(logs.slice(0, 200)));
+      _updateNotifBadge();
+      // If notif tab is visible, re-render
+      if (document.getElementById('section-notifications') && document.getElementById('section-notifications').classList.contains('active')) renderNotifLog();
+    } catch(e) {}
+  }
+  function _saveRespLog(question, reply, status) {
+    try {
+      const logs = JSON.parse(sessionStorage.getItem(RESP_LOG_KEY) || '[]');
+      logs.unshift({ question, reply, status, time: new Date().toISOString() });
+      sessionStorage.setItem(RESP_LOG_KEY, JSON.stringify(logs.slice(0, 200)));
+      _updateLogBadge();
+      if (document.getElementById('section-response-log') && document.getElementById('section-response-log').classList.contains('active')) renderRespLog();
+    } catch(e) {}
+  }
+  function _updateNotifBadge() {
+    const badge = document.getElementById('notifCountBadge');
+    if (!badge) return;
+    const logs = JSON.parse(sessionStorage.getItem(NOTIF_LOG_KEY) || '[]');
+    if (logs.length > 0) { badge.textContent = logs.length; badge.style.display = ''; } else { badge.style.display = 'none'; }
+  }
+  function _updateLogBadge() {
+    const badge = document.getElementById('logCountBadge');
+    if (!badge) return;
+    const logs = JSON.parse(sessionStorage.getItem(RESP_LOG_KEY) || '[]');
+    if (logs.length > 0) { badge.textContent = logs.length; badge.style.display = ''; } else { badge.style.display = 'none'; }
+  }
+  _updateNotifBadge();
+  _updateLogBadge();
+
+  function showToast(message, type, duration) {
+    if (typeof type === 'undefined') type = 'success';
+    if (typeof duration === 'undefined') duration = 4000;
+    const icons = { success: 'fa-check', info: 'fa-info', warning: 'fa-exclamation', danger: 'fa-times' };
+    // Save to notification log
+    _saveNotifLog(message, type);
+    const toast = document.createElement('div');
+    toast.className = 'notif-toast toast-' + type;
+    toast.innerHTML = `
+      <span class="notif-icon"><i class="fa ${icons[type]||icons.info}"></i></span>
+      <span class="notif-text">${message}</span>
+      <button class="notif-close" onclick="this.parentElement.remove()"><i class="fa fa-times"></i></button>`;
+    notifContainer.appendChild(toast);
+    const timer = setTimeout(() => {
+      toast.style.animation = 'notifOut 0.3s ease forwards';
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
+    toast.addEventListener('click', () => { clearTimeout(timer); toast.style.animation = 'notifOut 0.25s ease forwards'; setTimeout(() => toast.remove(), 250); });
+    while (notifContainer.children.length > 3) notifContainer.firstChild.remove();
+  }
+
+  // Legacy showAlert for compatibility
+  function showAlert(message, type) { showToast(message, type || 'info'); }
+
+  // ═══════════════════════════════════════════════════════════════
+  // AUTO-REFRESH BADGES
+  // ═══════════════════════════════════════════════════════════════
+  const _ejsData = document.getElementById('ejs-data').dataset;
+  let lastTotalQuestions = parseInt(_ejsData.totalQuestions) || 0;
+  let lastTotalPending = parseInt(_ejsData.totalPending) || 0;
+  let lastNewToday = parseInt(_ejsData.newToday) || 0;
+
+  async function refreshBadges() {
+    try {
+      const res = await fetch('/api/admin/stats');
+      const data = await res.json();
+      if (!data.success) return;
+
+      // Update sidebar stats
+      const sTotal = document.getElementById('sidebarStatTotal');
+      const sPending = document.getElementById('sidebarStatPending');
+      const sToday = document.getElementById('sidebarStatToday');
+      if (sTotal) sTotal.textContent = data.totalQuestions;
+      if (sPending) sPending.textContent = data.totalPending;
+      if (sToday) sToday.textContent = data.newQuestionsToday;
+
+      // Update sidebar nav badges
+      const qnaBadge = document.querySelector('#qna-tab .nav-badge');
+      if (qnaBadge) qnaBadge.textContent = data.totalQuestions;
+      const pendingBadge = document.querySelector('#pending-tab .nav-badge');
+      if (pendingBadge) {
+        pendingBadge.textContent = data.totalPending;
+        if (data.totalPending > lastTotalPending) {
+          showToast(`Có ${data.totalPending - lastTotalPending} câu hỏi mới cần trả lời!`, 'warning');
+          pendingBadge.classList.add('pulse-badge');
+        }
+      }
+
+      if (data.newQuestionsToday > lastNewToday) {
+        showToast(`AI đã thêm ${data.newQuestionsToday - lastNewToday} câu hỏi mới!`, 'info');
+      }
+
+      lastTotalQuestions = data.totalQuestions;
+      lastTotalPending = data.totalPending;
+      lastNewToday = data.newQuestionsToday;
+    } catch(e) { console.error('refreshBadges error', e); }
+  }
+  setInterval(refreshBadges, 30000);
+
+  // Welcome toasts — only show ONCE per browser session
+  (function() {
+    const WELCOME_KEY = 'chatbot_admin_welcome_shown';
+    if (!sessionStorage.getItem(WELCOME_KEY)) {
+      sessionStorage.setItem(WELCOME_KEY, '1');
+      if (lastNewToday > 0) {
+        setTimeout(() => showToast(lastNewToday + ' câu hỏi mới hôm nay bởi AI!', 'info', 5000), 800);
+      }
+      if (lastTotalPending > 0) {
+        setTimeout(() => showToast(lastTotalPending + ' câu hỏi đang chờ trả lời!', 'warning', 5000), 1600);
+      }
+    }
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // NOTIFICATION LOG TAB
+  // ═══════════════════════════════════════════════════════════════
+  function renderNotifLog() {
+    const list = document.getElementById('notifLogList');
+    const empty = document.getElementById('notifEmptyState');
+    const countEl = document.getElementById('notifCount');
+    const filterType = document.getElementById('notifTypeFilter').value;
+    let logs = [];
+    try { logs = JSON.parse(sessionStorage.getItem(NOTIF_LOG_KEY) || '[]'); } catch(e) {}
+    if (filterType !== 'all') logs = logs.filter(l => l.type === filterType);
+    if (countEl) countEl.textContent = logs.length + ' thông báo';
+    if (logs.length === 0) { list.innerHTML = ''; empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    const iconMap = { success: 'fa-check', info: 'fa-info', warning: 'fa-exclamation-triangle', danger: 'fa-times-circle' };
+    const typeLabel = { success: 'Thành công', info: 'Thông tin', warning: 'Cảnh báo', danger: 'Lỗi' };
+    list.innerHTML = logs.map(l => {
+      const d = new Date(l.time);
+      const timeStr = d.toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit',second:'2-digit'}) + ' · ' + d.toLocaleDateString('vi-VN');
+      return `<div class="log-item">
+        <div class="log-icon icon-${l.type||'info'}"><i class="fa ${iconMap[l.type]||iconMap.info}"></i></div>
+        <div class="log-body">
+          <div class="log-msg">${l.message}</div>
+          <div class="log-meta"><span class="log-type-label lt-${l.type||'info'}">${typeLabel[l.type]||'Info'}</span><span>${timeStr}</span></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('notifTypeFilter').addEventListener('change', renderNotifLog);
+  document.getElementById('clearNotifsBtn').addEventListener('click', function() {
+    if (!confirm('Xóa tất cả thông báo?')) return;
+    sessionStorage.removeItem(NOTIF_LOG_KEY);
+    renderNotifLog();
+    _updateNotifBadge();
+    showToast('Đã xóa lịch sử thông báo', 'success');
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // RESPONSE LOG TAB
+  // ═══════════════════════════════════════════════════════════════
+  function renderRespLog() {
+    const list = document.getElementById('responseLogList');
+    const empty = document.getElementById('logEmptyState');
+    const countEl = document.getElementById('logCount');
+    const searchTerm = (document.getElementById('logSearchInput').value || '').trim().toLowerCase();
+    let logs = [];
+    try { logs = JSON.parse(sessionStorage.getItem(RESP_LOG_KEY) || '[]'); } catch(e) {}
+    if (searchTerm) logs = logs.filter(l => (l.question + ' ' + l.reply).toLowerCase().includes(searchTerm));
+    if (countEl) countEl.textContent = logs.length + ' bản ghi';
+    if (logs.length === 0) { list.innerHTML = ''; empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    list.innerHTML = logs.map(l => {
+      const d = new Date(l.time);
+      const timeStr = d.toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit',second:'2-digit'}) + ' · ' + d.toLocaleDateString('vi-VN');
+      const statusIcon = l.status === 'error' ? 'icon-danger' : 'icon-bot';
+      const statusFa = l.status === 'error' ? 'fa-times' : 'fa-robot';
+      return `<div class="log-item">
+        <div class="log-icon ${statusIcon}"><i class="fa ${statusFa}"></i></div>
+        <div class="log-body">
+          <div class="log-conversation">
+            <div class="log-q"><strong>Q:</strong> ${l.question}</div>
+            <div class="log-a"><strong>A:</strong> ${l.reply}</div>
+          </div>
+          <div class="log-meta"><span>${timeStr}</span></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  (function() {
+    let logSearchTimer;
+    document.getElementById('logSearchInput').addEventListener('input', function() {
+      clearTimeout(logSearchTimer); logSearchTimer = setTimeout(renderRespLog, 300);
+    });
+  })();
+  document.getElementById('clearLogsBtn').addEventListener('click', function() {
+    if (!confirm('Xóa tất cả log phản hồi?')) return;
+    sessionStorage.removeItem(RESP_LOG_KEY);
+    renderRespLog();
+    _updateLogBadge();
+    showToast('Đã xóa log phản hồi', 'success');
+  });
+
+  // Initial render if tab is active
+  if (document.getElementById('section-notifications') && document.getElementById('section-notifications').classList.contains('active')) renderNotifLog();
+  if (document.getElementById('section-response-log') && document.getElementById('section-response-log').classList.contains('active')) renderRespLog();
+  </script>
+</body>
+</html>

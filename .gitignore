@@ -1,0 +1,30 @@
+# Environment variables - DO NOT COMMIT
+.env
+.env.local
+.env.*.local
+
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Uploads (if contains sensitive data)
+uploads/*
+!uploads/.gitkeep
+
+# Ngrok
+ngrok
+ngrok.exe
