@@ -1,0 +1,42 @@
+name: Node.js Chatbot Runner
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      PAGE_ACCESS_TOKEN: ${{ secrets.PAGE_ACCESS_TOKEN }}
+      VERIFY_TOKEN: ${{ secrets.VERIFY_TOKEN }}
+      NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
+      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start ngrok tunnel
+        run: |
+          npm install -g ngrok
+          ngrok authtoken $NGROK_AUTHTOKEN
+          ngrok http 3000 > ngrok.log &
+          sleep 5
+          curl http://localhost:4040/api/tunnels > tunnels.json
+          cat tunnels.json
+
+      - name: Run chatbot server
+        run: |
+          node index.js &
+          sleep 21500
