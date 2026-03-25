@@ -29,8 +29,15 @@ jobs:
           echo "PAGE_ACCESS_TOKEN=${{ secrets.PAGE_ACCESS_TOKEN }}" >> .env
           echo "VERIFY_TOKEN=${{ secrets.VERIFY_TOKEN }}" >> .env
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
-
-      - name: Run chatbot server
+      - name: Start ngrok tunnel
         run: |
-          node index.js &
-          sleep 21500
+          npm install -g ngrok
+          ngrok config add-authtoken $NGROK_AUTHTOKEN
+          ngrok http 3000 > ngrok.log &
+          sleep 5
+          curl http://localhost:4040/api/tunnels > tunnels.json
+          cat tunnels.json
+            - name: Run chatbot server
+              run: |
+                node index.js &
+                sleep 21500
