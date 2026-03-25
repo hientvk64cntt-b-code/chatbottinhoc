@@ -44,9 +44,15 @@ jobs:
           cat tunnels.json
       
       - name: Ghi đè file ngrok_url.txt với link ngrok mới nhất
-        run: |
-          NGROK_URL=$(cat tunnels.json | grep -o 'https://[a-zA-Z0-9\.\-]*ngrok[^"]*')
-          echo "$NGROK_URL/admin" > ngrok_url.txt
+        run:  
+              NGROK_URL=$(cat tunnels.json | grep -o 'https://[a-zA-Z0-9\.\-]*ngrok[^"]*')
+              echo "$NGROK_URL/admin" > ngrok_url.txt
+              
+              git config --global user.email "hientv.k64cntt-b@utb.edu.vn"
+              git config --global user.name "hientvk64cntt-b-code"
+              git add ngrok_url.txt
+              git commit -m "update ngrok url"
+              git push
 
       - name: Run chatbot server
         run: |
